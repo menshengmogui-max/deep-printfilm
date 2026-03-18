@@ -1,6 +1,15 @@
 #  GCC AI Motion Comic & Video Factory     一站式短剧平台
 
 
+# 客户端
+
+
+通过网盘分享的文件：短剧平台安装程序.zip
+链接: https://pan.baidu.com/s/1gUzHmP9Bqbi3U8C9jVpzrw?pwd=k4qa 提取码: k4qa 
+--来自百度网盘超级会员v9的分享
+
+
+
 中文[中文手册](https://github.com/yuanzhongqiao/deep-comedy-pro/blob/main/readme-cn.md)
 
 **AI One-Stop Short Film/Motion Comic Generation Platform**  
