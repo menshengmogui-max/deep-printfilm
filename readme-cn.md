@@ -4,7 +4,7 @@
 
 也可以在windows电脑，普通电脑即可生产短剧！！
 
-一句话生成短视频 www.printfilm   printfilm的源代码在这里 printfilm[https://github.com/yuanzhongqiao/printfilm]
+一句话生成短视频 www.printfilm   printfilm的源代码在这里 (网页的源代码printfilm)[https://github.com/yuanzhongqiao/printfilm]
 
 AI 生成复杂短剧可以客户端、也可以部署
 
