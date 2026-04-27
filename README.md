@@ -1,5 +1,10 @@
 #  GCC AI Motion Comic & Video Factory     一站式短剧平台
 
+
+
+中文[中文手册](https://github.com/yuanzhongqiao/deep-printfilm/blob/main/readme-cn.md)
+
+
 Short videos by AI :  www.printfilm.com
 
 Films  Moive and Drama  by   PrintFilm-Pro
@@ -15,8 +20,9 @@ Windows Application： AI Short Drama Setup
 --来自百度网盘超级会员v4的分享
 
 
+Short videos by AI :  www.printfilm.com
 
-中文[中文手册](https://github.com/yuanzhongqiao/deep-comedy-pro/blob/main/readme-cn.md)
+Films  Moive and Drama  by   PrintFilm-Pro
 
 **AI One-Stop Short Film/Motion Comic Generation Platform**  
 **Industrial AI Motion Comic & Video Workbench**
