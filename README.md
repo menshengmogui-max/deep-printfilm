@@ -11,9 +11,9 @@ Films  Moive and Drama  by   PrintFilm-Pro
 
 Windows Application OR Website
 
-Windows :
+Windows : set ip file : download the file[https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip]
 
-
+https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip
 
 
 # Print Film English Manual
