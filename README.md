@@ -222,3 +222,15 @@ If you encounter problems or wish to participate in community exchanges, please 
 - **GitHub Issues**: Report bugs or propose feature suggestions.
 - **Project Wiki**: Consult advanced tutorials and best practices.
 - **Community Groups**: Scan the code to join the official exchange group and interact and share with other creators.
+
+
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=yuanzhongqiao%2Fdeep-printfilm&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=yuanzhongqiao/deep-printfilm&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=yuanzhongqiao/deep-printfilm&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=yuanzhongqiao/deep-printfilm&type=date&legend=top-left" />
+ </picture>
+</a>
