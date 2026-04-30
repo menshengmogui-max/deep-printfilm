@@ -34,24 +34,22 @@ const VideoPlayerModal: React.FC<Props> = ({
   return (
     <div className={STYLES.videoModal.overlay}>
       <div className={STYLES.videoModal.container}>
-        {/* Header */}
-        <div className="p-4 border-b border-zinc-800 bg-[#141414] flex items-center justify-between shrink-0">
+        <div className="p-4 border-b border-white/10 bg-white/[0.04] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <Play className="w-5 h-5 text-indigo-500" />
+            <Play className="w-5 h-5 text-cyan-300" />
             <h3 className="text-lg font-bold text-white">视频预览</h3>
-            <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-zinc-400 text-[10px] rounded uppercase font-mono tracking-wider">
+            <span className="px-2 py-0.5 bg-cyan-300/10 border border-cyan-200/15 text-cyan-100/65 text-[10px] rounded-full uppercase font-mono tracking-wider">
               Shot {shotOriginalIndex + 1} / {project.shots.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/15 text-zinc-400 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Video Player */}
         <div className={STYLES.videoModal.player} style={{ height: '60vh' }}>
           <video
             ref={videoRef}
@@ -68,7 +66,6 @@ const VideoPlayerModal: React.FC<Props> = ({
             }}
           />
           
-          {/* Play/Pause Overlay Button */}
           <button
             onClick={onPlayPause}
             className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-colors group"
@@ -81,34 +78,32 @@ const VideoPlayerModal: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Shot Info */}
-        <div className="p-4 border-t border-zinc-800 bg-[#141414]">
+        <div className="p-4 border-t border-white/10 bg-white/[0.04]">
           <p className="text-sm text-zinc-300 mb-2 line-clamp-2">{currentShot.actionSummary}</p>
           {currentShot.dialogue && (
-            <p className="text-xs text-indigo-400 italic">"{currentShot.dialogue}"</p>
+            <p className="text-xs text-cyan-300 italic">"{currentShot.dialogue}"</p>
           )}
         </div>
 
-        {/* Controls */}
         <div className={STYLES.videoModal.controls}>
           <div className="flex items-center gap-2">
             <button
               onClick={onPrevShot}
               disabled={currentShotIndex === 0}
-              className="w-10 h-10 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
             >
               <SkipBack className="w-5 h-5" />
             </button>
             <button
               onClick={onPlayPause}
-              className="w-12 h-10 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+              className="w-12 h-10 rounded-xl bg-cyan-300 hover:bg-cyan-200 text-slate-950 flex items-center justify-center transition-colors"
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
             </button>
             <button
               onClick={onNextShot}
               disabled={currentShotIndex === completedShots.length - 1}
-              className="w-10 h-10 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
             >
               <SkipForward className="w-5 h-5" />
             </button>
@@ -126,7 +121,7 @@ const VideoPlayerModal: React.FC<Props> = ({
 
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors"
+            className="px-4 py-2 bg-cyan-300 text-slate-950 hover:bg-cyan-200 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
           >
             Close
           </button>

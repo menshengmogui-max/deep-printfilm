@@ -9,7 +9,6 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
         proxy: {
-          // 本地 CORS：将 /api-proxy 代理到 api.gitcc.com，避免浏览器跨域拦截
           '/api-proxy': {
             target: 'http://api.gitcc.com',
             changeOrigin: true,

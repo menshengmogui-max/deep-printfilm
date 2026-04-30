@@ -1,8 +1,3 @@
-/**
- * 镜头运动构图指导配置
- * 为不同类型的镜头运动提供首帧和尾帧的构图建议
- */
-
 export interface CameraMovementGuide {
   start: string;
   end: string;
@@ -119,23 +114,18 @@ export const CAMERA_MOVEMENT_GUIDES: Record<string, CameraMovementGuide> = {
   }
 };
 
-/**
- * 根据镜头运动类型返回构图指导
- */
 export const getCameraMovementCompositionGuide = (
   cameraMovement: string,
   frameType: 'start' | 'end'
 ): string => {
   const movement = cameraMovement.toLowerCase();
   
-  // 查找匹配的镜头运动类型
   for (const [key, value] of Object.entries(CAMERA_MOVEMENT_GUIDES)) {
     if (movement.includes(key) || key.includes(movement)) {
       return frameType === 'start' ? value.start : value.end;
     }
   }
   
-  // 默认通用指导
   return frameType === 'start' 
     ? 'Composition: Initial frame composition suited for the camera movement.'
     : 'Composition: Final frame composition showing the result of camera movement.';

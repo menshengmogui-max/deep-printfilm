@@ -67,9 +67,8 @@ const CharacterSection: React.FC<Props> = ({
             </p>
           )}
 
-          {/* Character Variations */}
           {char.variations && char.variations.length > 0 && (
-            <div className="mt-4 pl-4 border-l-2 border-zinc-800 space-y-3">
+            <div className="mt-4 pl-4 border-l-2 border-cyan-300/25 space-y-3">
               <h4 className="text-xs text-zinc-500 uppercase tracking-wider font-bold">角色变体</h4>
               {char.variations.map(variation => (
                 <div key={variation.id} className={STYLES.card.nested}>

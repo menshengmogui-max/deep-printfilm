@@ -28,7 +28,7 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
     large: 'px-6 py-3 text-sm',
   };
 
-  const buttonClass = `${sizeClasses[size]} bg-zinc-800 text-zinc-300 hover:bg-zinc-700 rounded font-bold transition-all border border-zinc-700 flex items-center gap-1 cursor-pointer`;
+  const buttonClass = `${sizeClasses[size]} bg-white/[0.07] text-slate-300 hover:bg-white/10 hover:text-white rounded-xl font-bold transition-all border border-white/10 hover:border-cyan-300/30 flex items-center gap-1 cursor-pointer`;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,14 +69,13 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
     );
   }
 
-  // Separate variant for regenerate + upload
   return (
     <div className="flex gap-2">
       {onGenerate && hasImage && (
         <button
           onClick={onGenerate}
           disabled={isGenerating}
-          className={`flex-1 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-zinc-800 transition-colors`}
+          className={`flex-1 py-1.5 bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-white/10 hover:border-cyan-300/30 transition-colors`}
         >
           {isGenerating ? (
             <>
@@ -91,7 +90,7 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
           )}
         </button>
       )}
-      <label className={`flex-1 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-zinc-800 transition-colors cursor-pointer`}>
+      <label className={`flex-1 py-1.5 bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-white/10 hover:border-cyan-300/30 transition-colors cursor-pointer`}>
         <Upload className="w-3 h-3" />
         {uploadLabel}
         <input

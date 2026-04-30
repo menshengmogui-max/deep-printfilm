@@ -68,7 +68,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="appearance-none bg-zinc-800 border border-zinc-700 text-white text-xs rounded px-3 py-1.5 pr-7 focus:border-indigo-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="appearance-none bg-white/[0.06] border border-white/10 text-white text-xs rounded-xl px-3 py-1.5 pr-7 focus:border-cyan-300/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {models.map((model) => (
             <option key={model.id} value={model.id}>
@@ -94,7 +94,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="w-full appearance-none bg-[#141414] border border-zinc-800 text-white text-xs rounded-lg px-3 py-2.5 pr-8 focus:border-indigo-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full appearance-none bg-white/[0.06] border border-white/10 text-white text-xs rounded-xl px-3 py-2.5 pr-8 focus:border-cyan-300/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {models.map((model) => (
             <option key={model.id} value={model.id}>
@@ -136,7 +136,7 @@ export const VideoModelSelector: React.FC<{
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="w-full appearance-none bg-[#141414] border border-zinc-800 text-white text-xs rounded-lg px-3 py-2.5 pr-8 focus:border-indigo-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full appearance-none bg-white/[0.06] border border-white/10 text-white text-xs rounded-xl px-3 py-2.5 pr-8 focus:border-cyan-300/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {models.map((model) => {
             const videoModel = model as VideoModelDefinition;

@@ -27,7 +27,7 @@ const CharacterList: React.FC<Props> = ({
       </h3>
       <div className="space-y-3">
         {characters.map(c => (
-          <div key={c.id} className="group cursor-default p-3 rounded-lg hover:bg-zinc-900/50 transition-colors border border-transparent hover:border-zinc-800">
+          <div key={c.id} className="group cursor-default p-3 rounded-2xl hover:bg-white/[0.05] transition-colors border border-transparent hover:border-cyan-200/20">
             <div className="flex justify-between items-start mb-2">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">

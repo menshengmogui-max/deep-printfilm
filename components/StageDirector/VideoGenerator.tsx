@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Video, Loader2, Edit2 } from 'lucide-react';
+import { Video, Loader2, Edit2, Sparkles } from 'lucide-react';
 import { Shot, AspectRatio, VideoDuration } from '../../types';
 import { VideoSettingsPanel } from '../AspectRatioSelector';
 import { 
@@ -16,6 +16,8 @@ interface VideoGeneratorProps {
   hasEndFrame: boolean;
   onGenerate: (aspectRatio: AspectRatio, duration: VideoDuration, modelId: string) => void;
   onEditPrompt: () => void;
+  onOptimizeForModeration?: () => void | Promise<void>;
+  isOptimizingForModeration?: boolean;
 }
 
 const VideoGenerator: React.FC<VideoGeneratorProps> = ({
@@ -23,34 +25,30 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
   hasStartFrame,
   hasEndFrame,
   onGenerate,
-  onEditPrompt
+  onEditPrompt,
+  onOptimizeForModeration,
+  isOptimizingForModeration = false
 }) => {
-  // 获取可用的视频模型
   const videoModels = getVideoModels().filter(m => m.isEnabled);
   const defaultModel = getActiveVideoModel();
   
-  // 状态
   const [selectedModelId, setSelectedModelId] = useState<string>(
     shot.videoModel || defaultModel?.id || videoModels[0]?.id || 'sora-2'
   );
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>(() => getDefaultAspectRatio());
   const [duration, setDuration] = useState<VideoDuration>(() => getDefaultVideoDuration());
   
-  // 当前选中的模型
   const selectedModel = videoModels.find(m => m.id === selectedModelId) as VideoModelDefinition | undefined;
   const modelType: 'sora' | 'veo' = selectedModel?.params.mode === 'async' ? 'sora' : 'veo';
   
   const isGenerating = shot.interval?.status === 'generating';
   const hasVideo = !!shot.interval?.videoUrl;
 
-  // 当模型变化时，更新横竖屏和时长的默认值
   useEffect(() => {
     if (selectedModel) {
-      // 如果当前选择的横竖屏不被新模型支持，切换到默认值
       if (!selectedModel.params.supportedAspectRatios.includes(aspectRatio)) {
         setAspectRatio(selectedModel.params.defaultAspectRatio);
       }
-      // 如果当前选择的时长不被新模型支持，切换到默认值
       if (!selectedModel.params.supportedDurations.includes(duration)) {
         setDuration(selectedModel.params.defaultDuration);
       }
@@ -62,10 +60,10 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
   };
 
   return (
-    <div className="bg-[#141414] rounded-xl p-5 border border-zinc-800 space-y-4">
+    <div className="bg-white/[0.045] rounded-2xl p-5 border border-white/10 space-y-4 backdrop-blur">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
-          <Video className="w-3 h-3 text-indigo-500" />
+          <Video className="w-3 h-3 text-cyan-300" />
           视频生成
           <button 
             onClick={onEditPrompt}
@@ -82,7 +80,6 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         )}
       </div>
       
-      {/* Model Selector */}
       <div className="space-y-2">
         <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">
           选择视频模型
@@ -90,7 +87,7 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         <select
           value={selectedModelId}
           onChange={(e) => setSelectedModelId(e.target.value)}
-          className="w-full bg-black text-white border border-zinc-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-colors"
+          className="w-full bg-white/[0.06] text-white border border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-300/40 transition-colors"
           disabled={isGenerating}
         >
           {videoModels.map((model) => {
@@ -114,7 +111,6 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         )}
       </div>
 
-      {/* 视频设置：横竖屏 & 时长 */}
       <div className="space-y-2">
         <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">
           视频设置
@@ -131,25 +127,23 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         />
       </div>
       
-      {/* Video Preview */}
       {hasVideo ? (
         <div className="w-full aspect-video bg-black rounded-lg overflow-hidden border border-zinc-700 relative shadow-lg">
           <video src={shot.interval.videoUrl} controls className="w-full h-full" />
         </div>
       ) : (
-        <div className="w-full aspect-video bg-zinc-900/50 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center">
+        <div className="w-full aspect-video bg-slate-950/55 rounded-2xl border border-dashed border-cyan-200/15 flex items-center justify-center">
           <span className="text-xs text-zinc-600 font-mono">PREVIEW AREA</span>
         </div>
       )}
 
-      {/* Generate Button */}
       <button
         onClick={handleGenerate}
         disabled={!hasStartFrame || isGenerating}
         className={`w-full py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
           hasVideo 
-            ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-            : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20'
+            ? 'bg-white/10 text-zinc-300 hover:bg-white/15'
+            : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200 shadow-lg shadow-cyan-500/20'
         } ${(!hasStartFrame) ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isGenerating ? (
@@ -161,8 +155,28 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
           <>{hasVideo ? '重新生成视频' : '开始生成视频'}</>
         )}
       </button>
+
+      {shot.interval?.status === 'failed' && shot.interval?.videoPrompt && onOptimizeForModeration && (
+        <button
+          type="button"
+          onClick={() => onOptimizeForModeration()}
+          disabled={isOptimizingForModeration}
+          className="w-full py-2.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 disabled:opacity-50 transition-colors"
+        >
+          {isOptimizingForModeration ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              正在优化描述…
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-3.5 h-3.5" />
+              AI 优化描述（规避审核）
+            </>
+          )}
+        </button>
+      )}
       
-      {/* Status Messages */}
       {!hasEndFrame && (
         <div className="text-[9px] text-zinc-500 text-center font-mono">
           * 未检测到结束帧，将使用单图生成模式 (Image-to-Video)

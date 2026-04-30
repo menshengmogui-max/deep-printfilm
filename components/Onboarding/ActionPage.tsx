@@ -33,10 +33,10 @@ const ActionPage: React.FC<ActionPageProps> = ({ onComplete, onQuickStart }) => 
             <button
               key={option.id}
               onClick={() => onQuickStart(option.id as 'script' | 'example')}
-              className="w-full flex items-center gap-4 bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-left hover:border-indigo-500/50 hover:bg-zinc-900 transition-all group"
+              className="w-full flex items-center gap-4 bg-white/[0.045] border border-white/10 rounded-2xl p-4 text-left hover:border-cyan-200/35 hover:bg-white/[0.07] transition-all group"
             >
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500/20 transition-colors">
-                <Icon className="w-5 h-5 text-indigo-400" />
+              <div className="w-12 h-12 rounded-xl bg-cyan-300/10 border border-cyan-200/25 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-300/20 transition-colors">
+                <Icon className="w-5 h-5 text-cyan-300" />
               </div>
               <div>
                 <h3 className="text-white font-bold text-sm mb-1 flex items-center gap-2">
@@ -53,7 +53,7 @@ const ActionPage: React.FC<ActionPageProps> = ({ onComplete, onQuickStart }) => 
       {/* 主按钮 */}
       <button
         onClick={onComplete}
-        className="px-8 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-zinc-200 transition-all duration-200 transform hover:scale-105"
+        className="px-8 py-3 bg-cyan-300 text-slate-950 font-bold text-sm rounded-xl hover:bg-cyan-200 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
       >
         创建我的第一部短剧
       </button>

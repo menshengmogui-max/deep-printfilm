@@ -29,24 +29,22 @@ const RenderLogsModal: React.FC<Props> = ({
   return (
     <div className={STYLES.modal.overlay}>
       <div className={STYLES.modal.container}>
-        {/* Header */}
         <div className={STYLES.modal.header}>
           <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-indigo-500" />
+            <Clock className="w-5 h-5 text-cyan-300" />
             <h3 className="text-xl font-bold text-white">Render Logs</h3>
-            <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-zinc-400 text-[10px] rounded uppercase font-mono tracking-wider">
+            <span className="px-2 py-0.5 bg-cyan-300/10 border border-cyan-200/15 text-cyan-100/65 text-[10px] rounded-full uppercase font-mono tracking-wider">
               {logs.length} Events
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/15 text-zinc-400 hover:text-white transition-colors"
           >
             ✕
           </button>
         </div>
 
-        {/* Stats Panel */}
         <div className={STYLES.statsPanel.container}>
           <div className={STYLES.statsPanel.grid}>
             <div className={STYLES.statsPanel.card}>
@@ -64,7 +62,6 @@ const RenderLogsModal: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Logs List */}
         <div className={STYLES.modal.content}>
           {logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
@@ -93,7 +90,7 @@ const RenderLogsModal: React.FC<Props> = ({
                             {log.status}
                           </span>
                           {log.duration && (
-                            <span className="px-1.5 py-0.5 text-[9px] font-mono text-zinc-500 bg-zinc-900 rounded border border-zinc-800">
+                            <span className="px-1.5 py-0.5 text-[9px] font-mono text-cyan-100/55 bg-cyan-300/10 rounded-full border border-cyan-200/15">
                               {formatDuration(log.duration)}
                             </span>
                           )}
@@ -119,7 +116,6 @@ const RenderLogsModal: React.FC<Props> = ({
                     </div>
                   </div>
                   
-                  {/* Expanded Details */}
                   {isExpanded && hasDetails && (
                     <div className={STYLES.logItem.details}>
                       {log.resourceId && (
@@ -147,19 +143,19 @@ const RenderLogsModal: React.FC<Props> = ({
                             {log.inputTokens && (
                               <div className="bg-black/30 px-2 py-1 rounded">
                                 <span className="text-zinc-500">Input:</span>
-                                <span className="text-indigo-400 font-mono ml-1">{log.inputTokens}</span>
+                                <span className="text-cyan-300 font-mono ml-1">{log.inputTokens}</span>
                               </div>
                             )}
                             {log.outputTokens && (
                               <div className="bg-black/30 px-2 py-1 rounded">
                                 <span className="text-zinc-500">Output:</span>
-                                <span className="text-indigo-400 font-mono ml-1">{log.outputTokens}</span>
+                                <span className="text-cyan-300 font-mono ml-1">{log.outputTokens}</span>
                               </div>
                             )}
                             {log.totalTokens && (
                               <div className="bg-black/30 px-2 py-1 rounded">
                                 <span className="text-zinc-500">Total:</span>
-                                <span className="text-indigo-400 font-mono ml-1">{log.totalTokens}</span>
+                                <span className="text-cyan-300 font-mono ml-1">{log.totalTokens}</span>
                               </div>
                             )}
                           </div>
@@ -173,11 +169,10 @@ const RenderLogsModal: React.FC<Props> = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className={STYLES.modal.footer}>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors"
+            className="px-4 py-2 bg-cyan-300 text-slate-950 hover:bg-cyan-200 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
           >
             Close
           </button>

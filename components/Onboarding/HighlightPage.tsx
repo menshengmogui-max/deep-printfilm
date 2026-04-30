@@ -18,7 +18,7 @@ const HighlightPage: React.FC<HighlightPageProps> = ({ onNext }) => {
         {HIGHLIGHTS.map((highlight, index) => (
           <div
             key={index}
-            className="flex items-start gap-4 bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-left hover:border-indigo-500/30 transition-colors"
+            className="flex items-start gap-4 bg-white/[0.045] border border-white/10 rounded-2xl p-4 text-left hover:border-cyan-200/35 transition-colors"
           >
             <span className="text-2xl flex-shrink-0">{highlight.icon}</span>
             <div>
@@ -30,7 +30,7 @@ const HighlightPage: React.FC<HighlightPageProps> = ({ onNext }) => {
       </div>
 
       {/* 场景共鸣 */}
-      <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 rounded-xl px-6 py-4 mb-10 max-w-md">
+      <div className="bg-gradient-to-r from-cyan-300/10 via-sky-400/10 to-fuchsia-400/10 border border-cyan-200/20 rounded-2xl px-6 py-4 mb-10 max-w-md">
         <p className="text-zinc-300 text-sm italic">
           "拍一个换装变身的短剧，再也不怕角色走形了"
         </p>
@@ -39,7 +39,7 @@ const HighlightPage: React.FC<HighlightPageProps> = ({ onNext }) => {
       {/* 主按钮 */}
       <button
         onClick={onNext}
-        className="px-8 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-zinc-200 transition-all duration-200 transform hover:scale-105"
+        className="px-8 py-3 bg-cyan-300 text-slate-950 font-bold text-sm rounded-xl hover:bg-cyan-200 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
       >
         最后一步
       </button>

@@ -1,7 +1,3 @@
-/**
- * StageScript 配置常量
- */
-
 export const DURATION_OPTIONS = [
   { label: '30秒 (广告)', value: '30s' },
   { label: '60秒 (预告)', value: '60s' },
@@ -38,17 +34,17 @@ export const VISUAL_STYLE_OPTIONS = [
 ];
 
 export const STYLES = {
-  input: 'w-full bg-[#141414] border border-zinc-800 text-white px-3 py-2.5 text-sm rounded-md focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 transition-all placeholder:text-zinc-700',
-  label: 'text-[10px] font-bold text-zinc-500 uppercase tracking-widest',
-  select: 'w-full bg-[#141414] border border-zinc-800 text-white px-3 py-2.5 text-sm rounded-md appearance-none focus:border-zinc-600 focus:outline-none transition-all cursor-pointer',
+  input: 'w-full bg-white/[0.06] border border-white/10 text-white px-3 py-2.5 text-sm rounded-xl focus:border-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/10 transition-all placeholder:text-slate-500',
+  label: 'text-[10px] font-bold text-cyan-100/55 uppercase tracking-widest',
+  select: 'w-full bg-white/[0.06] border border-white/10 text-white px-3 py-2.5 text-sm rounded-xl appearance-none focus:border-cyan-300/40 focus:outline-none transition-all cursor-pointer',
   button: {
-    primary: 'bg-white text-black hover:bg-zinc-200 shadow-lg shadow-white/5',
-    secondary: 'bg-transparent border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200',
-    selected: 'bg-zinc-100 text-black border-zinc-100 shadow-sm',
-    disabled: 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+    primary: 'bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950 hover:from-cyan-200 hover:to-sky-300 shadow-lg shadow-cyan-500/20',
+    secondary: 'bg-white/[0.04] border-white/10 text-slate-400 hover:border-cyan-300/30 hover:text-cyan-50',
+    selected: 'bg-cyan-300 text-slate-950 border-cyan-300 shadow-sm shadow-cyan-500/20',
+    disabled: 'bg-white/[0.05] text-slate-500 cursor-not-allowed border-white/10'
   },
   editor: {
-    textarea: 'w-full bg-[#141414] border border-zinc-700 text-zinc-300 px-3 py-2 text-sm rounded-md focus:border-zinc-500 focus:outline-none resize-none',
+    textarea: 'w-full bg-white/[0.06] border border-white/10 text-slate-200 px-3 py-2 text-sm rounded-xl focus:border-cyan-300/40 focus:outline-none resize-none',
     mono: 'font-mono',
     serif: 'font-serif italic'
   }

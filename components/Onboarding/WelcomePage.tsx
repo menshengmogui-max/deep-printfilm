@@ -12,10 +12,10 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onNext, onSkip }) => {
     <div className="flex flex-col items-center text-center">
       {/* 大图区域：Logo + 装饰 */}
       <div className="relative mb-8">
-        <div className="absolute -inset-8 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute -inset-8 bg-gradient-to-r from-cyan-300/20 via-sky-400/20 to-fuchsia-400/20 rounded-full blur-3xl opacity-50"></div>
         <img 
           src={LOGO_URL} 
-          alt="漫剧工场" 
+          alt="AI 漫剧工场" 
           className="w-24 h-24 relative z-10"
         />
         <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 animate-pulse" />
@@ -39,7 +39,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onNext, onSkip }) => {
       {/* 主按钮 */}
       <button
         onClick={onNext}
-        className="px-8 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-zinc-200 transition-all duration-200 transform hover:scale-105"
+        className="px-8 py-3 bg-cyan-300 text-slate-950 font-bold text-sm rounded-xl hover:bg-cyan-200 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
       >
         看看怎么玩
       </button>

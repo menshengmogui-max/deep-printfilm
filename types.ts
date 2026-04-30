@@ -1,10 +1,10 @@
 export interface CharacterVariation {
   id: string;
-  name: string; // e.g., "Casual", "Tactical Gear", "Injured"
+  name: string;
   visualPrompt: string;
-  negativePrompt?: string; // 负面提示词，用于排除不想要的元素
-  referenceImage?: string; // 角色变体参考图，存储为base64格式（data:image/png;base64,...）
-  status?: 'pending' | 'generating' | 'completed' | 'failed'; // 生成状态，用于loading状态持久化
+  negativePrompt?: string;
+  referenceImage?: string;
+  status?: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
 export interface Character {
@@ -14,11 +14,11 @@ export interface Character {
   age: string;
   personality: string;
   visualPrompt?: string;
-  negativePrompt?: string; // 负面提示词，用于排除不想要的元素
-  coreFeatures?: string; // 核心固定特征，用于保持角色一致性
-  referenceImage?: string; // 角色基础参考图，存储为base64格式（data:image/png;base64,...）
-  variations: CharacterVariation[]; // Added: List of alternative looks
-  status?: 'pending' | 'generating' | 'completed' | 'failed'; // 生成状态，用于loading状态持久化
+  negativePrompt?: string;
+  coreFeatures?: string;
+  referenceImage?: string;
+  variations: CharacterVariation[];
+  status?: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
 export interface Scene {
@@ -27,9 +27,9 @@ export interface Scene {
   time: string;
   atmosphere: string;
   visualPrompt?: string;
-  negativePrompt?: string; // 负面提示词，用于排除不想要的元素
-  referenceImage?: string; // 场景参考图，存储为base64格式（data:image/png;base64,...）
-  status?: 'pending' | 'generating' | 'completed' | 'failed'; // 生成状态，用于loading状态持久化
+  negativePrompt?: string;
+  referenceImage?: string;
+  status?: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
 export type AssetLibraryItemType = 'character' | 'scene';
@@ -47,7 +47,7 @@ export interface Keyframe {
   id: string;
   type: 'start' | 'end';
   visualPrompt: string;
-  imageUrl?: string; // 关键帧图像，存储为base64格式（data:image/png;base64,...）
+  imageUrl?: string;
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
@@ -57,8 +57,8 @@ export interface VideoInterval {
   endKeyframeId: string;
   duration: number;
   motionStrength: number;
-  videoUrl?: string; // 视频数据，存储为base64格式（data:video/mp4;base64,...），避免URL过期问题
-  videoPrompt?: string; // 视频生成时使用的提示词
+  videoUrl?: string;
+  videoPrompt?: string;
   status: 'pending' | 'generating' | 'completed' | 'failed';
 }
 
@@ -69,11 +69,11 @@ export interface Shot {
   dialogue?: string; 
   cameraMovement: string;
   shotSize?: string; 
-  characters: string[]; // Character IDs
-  characterVariations?: { [characterId: string]: string }; // Added: Map char ID to variation ID for this shot
+  characters: string[];
+  characterVariations?: { [characterId: string]: string };
   keyframes: Keyframe[];
   interval?: VideoInterval;
-  videoModel?: 'veo' | 'sora-2' | 'veo_3_1_t2v_fast_landscape' | 'veo_3_1_t2v_fast_portrait' | 'veo_3_1_i2v_s_fast_fl_landscape' | 'veo_3_1_i2v_s_fast_fl_portrait'; // Video generation model selection
+  videoModel?: 'veo' | 'sora-2' | 'veo_3_1_t2v_fast_landscape' | 'veo_3_1_t2v_fast_portrait' | 'veo_3_1_i2v_s_fast_fl_landscape' | 'veo_3_1_i2v_s_fast_fl_portrait';
 }
 
 export interface ScriptData {
@@ -82,8 +82,8 @@ export interface ScriptData {
   logline: string;
   targetDuration?: string;
   language?: string;
-  visualStyle?: string; // Visual style: live-action, anime, 3d-animation, etc.
-  shotGenerationModel?: string; // Model used for shot generation
+  visualStyle?: string;
+  shotGenerationModel?: string;
   characters: Character[];
   scenes: Scene[];
   storyParagraphs: { id: number; text: string; sceneRefId: string }[];
@@ -91,18 +91,18 @@ export interface ScriptData {
 
 export interface RenderLog {
   id: string;
-  timestamp: number; // Unix timestamp when API was called
+  timestamp: number;
   type: 'character' | 'character-variation' | 'scene' | 'keyframe' | 'video' | 'script-parsing';
-  resourceId: string; // ID of the resource being generated
-  resourceName: string; // Human-readable name
+  resourceId: string;
+  resourceName: string;
   status: 'success' | 'failed';
-  model: string; // Model used (e.g., 'imagen-3', 'veo_3_1_i2v_s_fast_fl_landscape', 'gpt-41')
-  prompt?: string; // The prompt used (optional, for debugging)
-  error?: string; // Error message if failed
-  inputTokens?: number; // Input tokens consumed
-  outputTokens?: number; // Output tokens generated
-  totalTokens?: number; // Total tokens (if available from API)
-  duration?: number; // Time taken in milliseconds
+  model: string;
+  prompt?: string;
+  error?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+  duration?: number;
 }
 
 export interface ProjectState {
@@ -112,88 +112,56 @@ export interface ProjectState {
   lastModified: number;
   stage: 'script' | 'assets' | 'director' | 'export' | 'prompts';
   
-  // Script Phase Data
   rawScript: string;
   targetDuration: string;
   language: string;
-  visualStyle: string; // Visual style: live-action, anime, 3d-animation, etc.
-  shotGenerationModel: string; // Model for shot generation
+  visualStyle: string;
+  shotGenerationModel: string;
   
   scriptData: ScriptData | null;
   shots: Shot[];
   isParsingScript: boolean;
-  renderLogs: RenderLog[]; // History of all API calls for this project
+  renderLogs: RenderLog[];
 }
 
-// ============================================
-// 模型管理相关类型定义
-// ============================================
-
-/**
- * 横竖屏比例类型
- * - 16:9: 横屏（默认）
- * - 9:16: 竖屏
- * - 1:1: 方形
- */
 export type AspectRatio = '16:9' | '9:16' | '1:1';
 
-/**
- * 视频时长类型（仅 Sora-2 支持）
- */
 export type VideoDuration = 4 | 8 | 12;
 
-/**
- * 模型提供商配置
- */
 export interface ModelProvider {
   id: string;
   name: string;
-  baseUrl: string;  // API 基础 URL，如 'http://api.gitcc.com'
-  apiKey?: string;  // 可选的独立 API Key（如果不设置则使用全局 API Key）
-  isDefault?: boolean;  // 是否为默认提供商
-  isBuiltIn?: boolean;  // 是否为内置提供商（不可删除）
+  baseUrl: string;
+  apiKey?: string;
+  isDefault?: boolean;
+  isBuiltIn?: boolean;
 }
 
-/**
- * 对话模型配置
- */
 export interface ChatModelConfig {
   providerId: string;
-  modelName: string;  // 如 'gpt-5.1', 'gpt-41', 'gpt-5.2'
-  endpoint?: string;  // API 端点，默认为 '/v1/chat/completions'
+  modelName: string;
+  endpoint?: string;
 }
 
-/**
- * 画图模型配置
- */
 export interface ImageModelConfig {
   providerId: string;
-  modelName: string;  // 如 'gemini-3-pro-image-preview'
-  endpoint?: string;  // API 端点，默认为 '/v1beta/models/{modelName}:generateContent'
+  modelName: string;
+  endpoint?: string;
 }
 
-/**
- * 视频模型配置
- */
 export interface VideoModelConfig {
   providerId: string;
-  type: 'sora' | 'veo';  // sora 使用异步 API，veo 使用同步 API
-  modelName: string;  // 基础模型名，如 'sora-2', 'veo_3_1'
-  endpoint?: string;  // API 端点
+  type: 'sora' | 'veo';
+  modelName: string;
+  endpoint?: string;
 }
 
-/**
- * 完整的模型配置
- */
 export interface ModelConfig {
   chatModel: ChatModelConfig;
   imageModel: ImageModelConfig;
   videoModel: VideoModelConfig;
 }
 
-/**
- * 模型管理全局状态
- */
 export interface ModelManagerState {
   providers: ModelProvider[];
   currentConfig: ModelConfig;

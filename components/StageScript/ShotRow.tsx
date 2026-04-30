@@ -47,44 +47,38 @@ const ShotRow: React.FC<Props> = ({
   onSaveAction,
   onCancelAction
 }) => {
-  // 从shot.id中提取显示编号
-  // 例如：shot-1 → "SHOT 001", shot-1-1 → "SHOT 001-1"
+  // shot-1 / shot-1-1 需要映射为分鏡列表上的主鏡頭/子鏡頭編號。
   const getShotDisplayNumber = () => {
-    const idParts = shot.id.split('-').slice(1); // 移除 "shot" 前缀
+    const idParts = shot.id.split('-').slice(1);
     if (idParts.length === 1) {
-      // 主镜头：shot-1 → "SHOT 001"
       return `SHOT ${String(idParts[0]).padStart(3, '0')}`;
     } else if (idParts.length === 2) {
-      // 子镜头：shot-1-1 → "SHOT 001-1"
       return `SHOT ${String(idParts[0]).padStart(3, '0')}-${idParts[1]}`;
     } else {
-      // 降级方案：使用传入的shotNumber
       return `SHOT ${shotNumber.toString().padStart(3, '0')}`;
     }
   };
 
   return (
-    <div className="group bg-[#050505] hover:bg-[#0A0A0A] transition-colors p-8 flex gap-8">
-      {/* Shot ID & Tech Data */}
+    <div className="group bg-white/[0.025] hover:bg-white/[0.055] transition-colors p-8 flex gap-8">
       <div className="w-32 flex-shrink-0 flex flex-col gap-4">
         <div className="text-xs font-mono text-zinc-500 group-hover:text-white transition-colors">
           {getShotDisplayNumber()}
         </div>
         
         <div className="flex flex-col gap-2">
-          <div className="px-2 py-1 bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-zinc-400 uppercase text-center rounded">
+          <div className="px-2 py-1 bg-cyan-300/10 border border-cyan-200/15 text-[10px] font-mono text-cyan-100/65 uppercase text-center rounded-full">
             {shot.shotSize || 'MED'}
           </div>
-          <div className="px-2 py-1 bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-zinc-400 uppercase text-center rounded">
+          <div className="px-2 py-1 bg-cyan-300/10 border border-cyan-200/15 text-[10px] font-mono text-cyan-100/65 uppercase text-center rounded-full">
             {shot.cameraMovement}
           </div>
         </div>
       </div>
 
-      {/* Main Action */}
       <div className="flex-1 space-y-4">
         {editingShotActionId === shot.id ? (
-          <div className="space-y-3 p-4 bg-[#0A0A0A] border border-zinc-800 rounded-lg">
+          <div className="space-y-3 p-4 bg-slate-950/55 border border-white/10 rounded-2xl">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">动作描述</label>
               <textarea
@@ -107,12 +101,12 @@ const ShotRow: React.FC<Props> = ({
               />
             </div>
             
-            <div className="flex gap-2 pt-2 border-t border-zinc-800">
-              <button onClick={onSaveAction} className="px-3 py-1.5 bg-white text-black text-xs font-bold rounded flex items-center gap-1 hover:bg-zinc-200 transition-colors">
+            <div className="flex gap-2 pt-2 border-t border-white/10">
+              <button onClick={onSaveAction} className="px-3 py-1.5 bg-cyan-300 text-slate-950 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-cyan-200 transition-colors">
                 <Check className="w-3 h-3" />
                 保存
               </button>
-              <button onClick={onCancelAction} className="px-3 py-1.5 bg-zinc-800 text-zinc-400 text-xs font-bold rounded flex items-center gap-1 hover:bg-zinc-700 transition-colors">
+              <button onClick={onCancelAction} className="px-3 py-1.5 bg-white/10 text-zinc-300 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-white/15 transition-colors">
                 <X className="w-3 h-3" />
                 取消
               </button>
@@ -126,7 +120,7 @@ const ShotRow: React.FC<Props> = ({
               </p>
               <button
                 onClick={() => onEditAction(shot.id, shot.actionSummary, shot.dialogue || '')}
-                className="opacity-0 group-hover/action:opacity-100 transition-opacity p-1.5 hover:bg-zinc-800 rounded flex-shrink-0"
+                className="opacity-0 group-hover/action:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded-xl flex-shrink-0"
                 title="编辑动作和台词"
               >
                 <Edit2 className="w-3.5 h-3.5 text-zinc-500 hover:text-white" />
@@ -134,20 +128,19 @@ const ShotRow: React.FC<Props> = ({
             </div>
             
             {shot.dialogue && (
-              <div className="pl-6 border-l-2 border-zinc-800 group-hover:border-zinc-600 transition-colors py-1 mt-3">
+              <div className="pl-6 border-l-2 border-cyan-200/15 group-hover:border-cyan-200/35 transition-colors py-1 mt-3">
                 <p className="text-zinc-400 font-serif italic text-sm">"{shot.dialogue}"</p>
               </div>
             )}
           </div>
         )}
         
-        {/* Characters */}
         <div className="pt-2">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">角色</span>
             <button
               onClick={() => onEditCharacters(shot.id)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-zinc-800 rounded"
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded-xl"
               title="编辑角色列表"
             >
               <Edit2 className="w-3 h-3 text-zinc-500 hover:text-white" />
@@ -155,7 +148,7 @@ const ShotRow: React.FC<Props> = ({
           </div>
           
           {editingShotCharactersId === shot.id ? (
-            <div className="space-y-3 p-3 bg-[#0A0A0A] border border-zinc-800 rounded-lg">
+            <div className="space-y-3 p-3 bg-slate-950/55 border border-white/10 rounded-2xl">
               <div className="space-y-2">
                 <div className="text-[10px] text-zinc-500 uppercase tracking-wider">当前角色</div>
                 <div className="flex flex-wrap gap-2">
@@ -165,7 +158,7 @@ const ShotRow: React.FC<Props> = ({
                     shot.characters.map(cid => {
                       const char = scriptData?.characters.find(c => c.id === cid);
                       return char ? (
-                        <div key={cid} className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-zinc-300 border border-zinc-700 px-2 py-1 rounded-md bg-zinc-900">
+                        <div key={cid} className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-cyan-100/75 border border-cyan-200/15 px-2 py-1 rounded-full bg-cyan-300/10">
                           <span>{char.name}</span>
                           <button
                             onClick={() => onRemoveCharacter(shot.id, cid)}
@@ -190,7 +183,7 @@ const ShotRow: React.FC<Props> = ({
                       <button
                         key={char.id}
                         onClick={() => onAddCharacter(shot.id, char.id)}
-                        className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-zinc-500 border border-zinc-800 px-2 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 hover:text-white hover:border-zinc-600 transition-colors"
+                        className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 border border-white/10 px-2 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-300/10 hover:text-cyan-100 hover:border-cyan-200/25 transition-colors"
                         title="添加角色"
                       >
                         <UserPlus className="w-3 h-3" />
@@ -203,10 +196,10 @@ const ShotRow: React.FC<Props> = ({
                 </div>
               </div>
               
-              <div className="pt-2 border-t border-zinc-800">
+              <div className="pt-2 border-t border-white/10">
                 <button
                   onClick={onCloseCharactersEdit}
-                  className="px-3 py-1.5 bg-zinc-800 text-zinc-300 text-xs font-bold rounded flex items-center gap-1 hover:bg-zinc-700 transition-colors"
+                  className="px-3 py-1.5 bg-cyan-300/10 text-cyan-100 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-cyan-300/15 transition-colors border border-cyan-200/15"
                 >
                   <Check className="w-3 h-3" />
                   完成
@@ -221,7 +214,7 @@ const ShotRow: React.FC<Props> = ({
                 shot.characters.map(cid => {
                   const char = scriptData?.characters.find(c => c.id === cid);
                   return char ? (
-                    <span key={cid} className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 border border-zinc-800 px-2 py-0.5 rounded-full bg-zinc-900">
+                    <span key={cid} className="text-[10px] uppercase font-bold tracking-wider text-cyan-100/55 border border-cyan-200/15 px-2 py-0.5 rounded-full bg-cyan-300/10">
                       {char.name}
                     </span>
                   ) : null;
@@ -231,8 +224,7 @@ const ShotRow: React.FC<Props> = ({
           )}
         </div>
 
-        {/* Mobile Prompt Editor */}
-        <div className="xl:hidden pt-4 border-t border-zinc-800/50">
+        <div className="xl:hidden pt-4 border-t border-white/10">
           <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 flex items-center gap-2 justify-between">
             <span className="flex items-center gap-2">
               <Aperture className="w-3 h-3" /> 画面提示词
@@ -240,7 +232,7 @@ const ShotRow: React.FC<Props> = ({
             {editingShotId !== shot.id && (
               <button
                 onClick={() => onEditPrompt(shot.id, shot.keyframes[0]?.visualPrompt || '')}
-                className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
+                className="p-1.5 bg-white/10 hover:bg-white/15 rounded-xl transition-colors"
                 title="编辑提示词"
               >
                 <Edit2 className="w-3 h-3 text-zinc-400" />
@@ -262,8 +254,7 @@ const ShotRow: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Prompt Preview (Desktop) */}
-      <div className="w-64 hidden xl:block pl-6 border-l border-zinc-900">
+      <div className="w-64 hidden xl:block pl-6 border-l border-white/10">
         <div className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest mb-2 flex items-center gap-2 justify-between">
           <span className="flex items-center gap-2">
             <Aperture className="w-3 h-3" /> 画面提示词
@@ -271,7 +262,7 @@ const ShotRow: React.FC<Props> = ({
           {editingShotId !== shot.id && (
             <button
               onClick={() => onEditPrompt(shot.id, shot.keyframes[0]?.visualPrompt || '')}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-zinc-800 rounded"
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded-xl"
               title="编辑提示词"
             >
               <Edit2 className="w-3 h-3 text-zinc-500 hover:text-white" />

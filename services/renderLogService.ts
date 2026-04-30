@@ -1,34 +1,17 @@
 import { RenderLog } from '../types';
 
-/**
- * Render Log Service
- * Manages API call logging for tracking generation history, costs, and debugging
- */
-
-// Type for log creation callback - used to save logs to project state
 type LogCallback = (log: RenderLog) => void;
 
 let logCallback: LogCallback | null = null;
 
-/**
- * Set the callback function that will be called when a new log is created
- * This callback should save the log to the project state
- */
 export const setLogCallback = (callback: LogCallback) => {
   logCallback = callback;
 };
 
-/**
- * Clear the log callback
- */
 export const clearLogCallback = () => {
   logCallback = null;
 };
 
-/**
- * Add a render log entry
- * Records an API call with all relevant metadata
- */
 export const addRenderLog = (log: Omit<RenderLog, 'id' | 'timestamp'>): void => {
   const fullLog: RenderLog = {
     ...log,
@@ -43,10 +26,6 @@ export const addRenderLog = (log: Omit<RenderLog, 'id' | 'timestamp'>): void => 
   }
 };
 
-/**
- * Helper to wrap an API operation with automatic logging
- * Captures timing, success/failure, and token usage
- */
 export const withLogging = async <T>(
   operation: () => Promise<T>,
   logInfo: {
@@ -84,10 +63,6 @@ export const withLogging = async <T>(
   }
 };
 
-/**
- * Helper to log with token information
- * Use this when you have token usage data from API response
- */
 export const addRenderLogWithTokens = (
   logInfo: Omit<RenderLog, 'id' | 'timestamp'> & {
     inputTokens?: number;

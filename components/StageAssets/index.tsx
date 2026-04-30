@@ -1,3 +1,4 @@
+// Author: forsearch | Updated: 2026-04-30
 import React, { useState, useEffect } from 'react';
 import { Users, Sparkles, RefreshCw, Loader2, MapPin, Archive, X, Search, Trash2 } from 'lucide-react';
 import { ProjectState, CharacterVariation, Character, Scene, AspectRatio, AssetLibraryItem } from '../../types';
@@ -42,31 +43,23 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
   const [libraryFilter, setLibraryFilter] = useState<'all' | 'character' | 'scene'>('all');
   const [replaceTargetCharId, setReplaceTargetCharId] = useState<string | null>(null);
   
-  // 横竖屏选择状态
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>(() => getDefaultAspectRatio());
   
-  // 图片模型选择状态
   const defaultImageModel = getActiveImageModel();
   const [selectedImageModelId, setSelectedImageModelId] = useState<string>(
     defaultImageModel?.id || 'gemini-3-pro-image-preview'
   );
 
-  // 获取项目配置
   const language = getProjectLanguage(project.language, project.scriptData?.language);
   const visualStyle = getProjectVisualStyle(project.visualStyle, project.scriptData?.visualStyle);
   const genre = project.scriptData?.genre || DEFAULTS.genre;
 
-  /**
-   * 组件加载时，检测并重置卡住的生成状态
-   * 解决关闭页面后重新打开时，状态仍为"generating"导致无法重新生成的问题
-   */
+  // 页面重开后可能保留 generating 状态，需要回退为 failed 让用户能重新生成。
   useEffect(() => {
     if (!project.scriptData) return;
 
     const hasStuckCharacters = project.scriptData.characters.some(char => {
-      // 检查角色本身是否卡住
       const isCharStuck = char.status === 'generating' && !char.referenceImage;
-      // 检查角色变体是否卡住
       const hasStuckVariations = char.variations?.some(v => v.status === 'generating' && !v.referenceImage);
       return isCharStuck || hasStuckVariations;
     });
@@ -76,10 +69,8 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     );
 
     if (hasStuckCharacters || hasStuckScenes) {
-      console.log('🔧 检测到卡住的生成状态，正在重置...');
       const newData = { ...project.scriptData };
       
-      // 重置角色状态
       newData.characters = newData.characters.map(char => ({
         ...char,
         status: char.status === 'generating' && !char.referenceImage ? 'failed' as const : char.status,
@@ -89,7 +80,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
         }))
       }));
       
-      // 重置场景状态
       newData.scenes = newData.scenes.map(scene => ({
         ...scene,
         status: scene.status === 'generating' && !scene.referenceImage ? 'failed' as const : scene.status
@@ -97,7 +87,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
       
       updateProject({ scriptData: newData });
     }
-  }, [project.id]); // 仅在项目ID变化时运行，避免重复执行
+  }, [project.id]);
 
   const refreshLibrary = async () => {
     setLibraryLoading(true);
@@ -123,11 +113,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     setShowLibraryModal(true);
   };
 
-  /**
-   * 生成资源（角色或场景）
-   */
   const handleGenerateAsset = async (type: 'character' | 'scene', id: string) => {
-    // 设置生成状态
     if (project.scriptData) {
       const newData = { ...project.scriptData };
       if (type === 'character') {
@@ -151,7 +137,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
             const prompts = await generateVisualPrompts('character', char, genre, DEFAULTS.modelVersion, visualStyle, language);
             prompt = prompts.visualPrompt;
             
-            // 保存生成的提示词
             if (project.scriptData) {
               const newData = { ...project.scriptData };
               const c = newData.characters.find(c => compareIds(c.id, id));
@@ -172,7 +157,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
             const prompts = await generateVisualPrompts('scene', scene, genre, DEFAULTS.modelVersion, visualStyle, language);
             prompt = prompts.visualPrompt;
             
-            // 保存生成的提示词
             if (project.scriptData) {
               const newData = { ...project.scriptData };
               const s = newData.scenes.find(s => compareIds(s.id, id));
@@ -186,14 +170,11 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
         }
       }
 
-      // 添加地域特征前缀
       const regionalPrefix = getRegionalPrefix(language, type);
       const enhancedPrompt = regionalPrefix + prompt;
 
-      // 生成图片（使用选择的横竖屏比例）
       const imageUrl = await generateImage(enhancedPrompt, [], aspectRatio);
 
-      // 更新状态
       if (project.scriptData) {
         const newData = { ...project.scriptData };
         if (type === 'character') {
@@ -214,7 +195,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
 
     } catch (e: any) {
       console.error(e);
-      // 设置失败状态
       if (project.scriptData) {
         const newData = { ...project.scriptData };
         if (type === 'character') {
@@ -232,9 +212,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 批量生成资源
-   */
   const handleBatchGenerate = async (type: 'character' | 'scene') => {
     const items = type === 'character' 
       ? project.scriptData?.characters 
@@ -272,9 +249,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     setBatchProgress(null);
   };
 
-  /**
-   * 上传角色图片
-   */
   const handleUploadCharacterImage = async (charId: string, file: File) => {
     try {
       const base64 = await handleImageUpload(file);
@@ -292,9 +266,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 上传场景图片
-   */
   const handleUploadSceneImage = async (sceneId: string, file: File) => {
     try {
       const base64 = await handleImageUpload(file);
@@ -413,9 +384,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 保存角色提示词
-   */
   const handleSaveCharacterPrompt = (charId: string, newPrompt: string) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -426,9 +394,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 更新角色基本信息
-   */
   const handleUpdateCharacterInfo = (charId: string, updates: { name?: string; gender?: string; age?: string; personality?: string }) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -442,9 +407,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 保存场景提示词
-   */
   const handleSaveScenePrompt = (sceneId: string, newPrompt: string) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -455,9 +417,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 更新场景基本信息
-   */
   const handleUpdateSceneInfo = (sceneId: string, updates: { location?: string; time?: string; atmosphere?: string }) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -470,9 +429,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 新建角色
-   */
   const handleAddCharacter = () => {
     if (!project.scriptData) return;
     
@@ -493,9 +449,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     showAlert('新角色已创建，请编辑提示词并生成图片', { type: 'success' });
   };
 
-  /**
-   * 删除角色
-   */
   const handleDeleteCharacter = (charId: string) => {
     if (!project.scriptData) return;
     const char = project.scriptData.characters.find(c => compareIds(c.id, charId));
@@ -519,9 +472,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     );
   };
 
-  /**
-   * 新建场景
-   */
   const handleAddScene = () => {
     if (!project.scriptData) return;
     
@@ -540,9 +490,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     showAlert('新场景已创建，请编辑提示词并生成图片', { type: 'success' });
   };
 
-  /**
-   * 删除场景
-   */
   const handleDeleteScene = (sceneId: string) => {
     if (!project.scriptData) return;
     const scene = project.scriptData.scenes.find(s => compareIds(s.id, sceneId));
@@ -566,9 +513,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     );
   };
 
-  /**
-   * 添加角色变体
-   */
   const handleAddVariation = (charId: string, name: string, prompt: string) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -588,9 +532,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     updateProject({ scriptData: newData });
   };
 
-  /**
-   * 删除角色变体
-   */
   const handleDeleteVariation = (charId: string, varId: string) => {
     if (!project.scriptData) return;
     const newData = { ...project.scriptData };
@@ -601,15 +542,11 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     updateProject({ scriptData: newData });
   };
 
-  /**
-   * 生成角色变体
-   */
   const handleGenerateVariation = async (charId: string, varId: string) => {
     const char = project.scriptData?.characters.find(c => compareIds(c.id, charId));
     const variation = char?.variations?.find(v => compareIds(v.id, varId));
     if (!char || !variation) return;
 
-    // 设置生成状态
     if (project.scriptData) {
       const newData = { ...project.scriptData };
       const c = newData.characters.find(c => compareIds(c.id, charId));
@@ -620,10 +557,8 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     try {
       const refImages = char.referenceImage ? [char.referenceImage] : [];
       const regionalPrefix = getRegionalPrefix(language, 'character');
-      // 构建变体专用提示词：强调服装变化
       const enhancedPrompt = `${regionalPrefix}Character "${char.name}" wearing NEW OUTFIT: ${variation.visualPrompt}. This is a costume/outfit change - the character's face and identity must remain identical to the reference, but they should be wearing the described new outfit.`;
       
-      // 使用选择的横竖屏比例，启用变体模式
       const imageUrl = await generateImage(enhancedPrompt, refImages, aspectRatio, true);
 
       const newData = { ...project.scriptData! };
@@ -637,7 +572,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
       updateProject({ scriptData: newData });
     } catch (e: any) {
       console.error(e);
-      // 设置失败状态
       if (project.scriptData) {
         const newData = { ...project.scriptData };
         const c = newData.characters.find(c => compareIds(c.id, charId));
@@ -652,9 +586,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  /**
-   * 上传角色变体图片
-   */
   const handleUploadVariationImage = async (charId: string, varId: string, file: File) => {
     try {
       const base64 = await handleImageUpload(file);
@@ -673,11 +604,10 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
     }
   };
 
-  // 空状态
   if (!project.scriptData) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-[#121212] text-zinc-500">
-        <p>请先完成 Phase 01 剧本分析</p>
+      <div className="h-full flex flex-col items-center justify-center bg-slate-950/35 text-slate-500 backdrop-blur-sm">
+        <p>请先完成 Phase 01 剧情创作</p>
       </div>
     );
   }
@@ -695,20 +625,18 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
   return (
     <div className={STYLES.mainContainer}>
       
-      {/* Image Preview Modal */}
       <ImagePreviewModal 
         imageUrl={previewImage} 
         onClose={() => setPreviewImage(null)} 
       />
 
-      {/* Global Progress Overlay */}
       {batchProgress && (
         <div className="absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center backdrop-blur-md animate-in fade-in">
-          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-6" />
+          <Loader2 className="w-12 h-12 text-cyan-300 animate-spin mb-6" />
           <h3 className="text-xl font-bold text-white mb-2">正在批量生成资源...</h3>
-          <div className="w-64 h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-2">
+          <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
             <div 
-              className="h-full bg-indigo-500 transition-all duration-300" 
+              className="h-full bg-gradient-to-r from-cyan-300 to-sky-400 transition-all duration-300" 
               style={{ width: `${(batchProgress.current / batchProgress.total) * 100}%` }}
             />
           </div>
@@ -718,7 +646,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
         </div>
       )}
 
-      {/* Wardrobe Modal */}
       {selectedChar && (
         <WardrobeModal
           character={selectedChar}
@@ -731,7 +658,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
         />
       )}
 
-      {/* Asset Library Modal */}
       {showLibraryModal && (
         <div className={STYLES.modalOverlay} onClick={() => {
           setShowLibraryModal(false);
@@ -740,7 +666,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
           <div className={STYLES.modalContainer} onClick={(e) => e.stopPropagation()}>
             <div className={STYLES.modalHeader}>
               <div className="flex items-center gap-3">
-                <Archive className="w-4 h-4 text-indigo-400" />
+                <Archive className="w-4 h-4 text-cyan-300" />
                 <div>
                   <div className="text-sm font-bold text-white">资产库</div>
                   <div className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
@@ -753,7 +679,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                   setShowLibraryModal(false);
                   setReplaceTargetCharId(null);
                 }}
-                className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded"
+                className="p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl"
                 title="关闭"
               >
                 <X className="w-4 h-4" />
@@ -767,7 +693,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                     value={libraryQuery}
                     onChange={(e) => setLibraryQuery(e.target.value)}
                     placeholder="搜索资产名称..."
-                    className="w-full pl-9 pr-3 py-2 bg-[#0F0F0F] border border-zinc-800 rounded text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600"
+                    className="w-full pl-9 pr-3 py-2 bg-white/[0.06] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-300/40"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -777,8 +703,8 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                       onClick={() => setLibraryFilter(type)}
                       className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest border rounded ${
                         libraryFilter === type
-                          ? 'bg-white text-black border-white'
-                          : 'bg-transparent text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-600'
+                          ? 'bg-cyan-300 text-slate-950 border-cyan-300'
+                          : 'bg-white/[0.04] text-slate-400 border-white/10 hover:text-white hover:border-cyan-300/30'
                       }`}
                     >
                       {type === 'all' ? '全部' : type === 'character' ? '角色' : '场景'}
@@ -792,7 +718,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                   <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
                 </div>
               ) : filteredLibraryItems.length === 0 ? (
-                <div className="border border-dashed border-zinc-800 rounded-xl p-10 text-center text-zinc-600 text-sm">
+                <div className="border border-dashed border-cyan-200/15 rounded-2xl p-10 text-center text-slate-500 text-sm">
                   暂无资产。可在角色或场景卡片中选择“加入资产库”。
                 </div>
               ) : (
@@ -805,9 +731,9 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                     return (
                       <div
                         key={item.id}
-                        className="bg-[#0F0F0F] border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 transition-colors"
+                        className="bg-white/[0.045] border border-white/10 rounded-2xl overflow-hidden hover:border-cyan-200/35 transition-colors backdrop-blur"
                       >
-                        <div className="aspect-video bg-zinc-900 relative">
+                        <div className="aspect-video bg-slate-950/70 relative">
                           {preview ? (
                             <img src={preview} alt={item.name} className="w-full h-full object-cover" />
                           ) : (
@@ -834,7 +760,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                                   ? handleReplaceCharacterFromLibrary(item, replaceTargetCharId)
                                   : handleImportFromLibrary(item)
                               }
-                              className="flex-1 py-2 bg-white text-black hover:bg-zinc-200 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+                              className="flex-1 py-2 bg-cyan-300 text-slate-950 hover:bg-cyan-200 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors"
                             >
                               {replaceTargetCharId ? '替换当前角色' : '导入到当前项目'}
                             </button>
@@ -846,7 +772,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
                                   onConfirm: () => handleDeleteLibraryItem(item.id)
                                 })
                               }
-                              className="p-2 border border-zinc-800 text-zinc-500 hover:text-red-400 hover:border-red-500/50 rounded transition-colors"
+                              className="p-2 border border-white/10 text-slate-500 hover:text-red-300 hover:border-red-400/40 rounded-xl transition-colors"
                               title="删除"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -863,13 +789,12 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
         </div>
       )}
 
-      {/* Header */}
       <div className={STYLES.header}>
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-3">
-            <Users className="w-5 h-5 text-indigo-500" />
-            角色与场景
-            <span className="text-xs text-zinc-600 font-mono font-normal uppercase tracking-wider bg-black/30 px-2 py-1 rounded">
+                  <Users className="w-5 h-5 text-cyan-300" />
+            场景角色
+            <span className="text-xs text-cyan-100/40 font-mono font-normal uppercase tracking-wider bg-white/5 px-2 py-1 rounded-full">
               Assets & Casting
             </span>
           </h2>
@@ -883,7 +808,6 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
             <Archive className="w-4 h-4" />
             资产库
           </button>
-          {/* 图片模型选择 */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-zinc-500 uppercase">模型</span>
             <ModelSelector
@@ -894,22 +818,20 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
               compact
             />
           </div>
-          <div className="w-px h-6 bg-zinc-800" />
-          {/* 横竖屏选择 */}
+          <div className="w-px h-6 bg-white/10" />
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-zinc-500 uppercase">比例</span>
             <AspectRatioSelector
               value={aspectRatio}
               onChange={setAspectRatio}
               allowSquare={(() => {
-                // 根据选中的图片模型判断是否支持方形
                 const selectedModel = getModelById(selectedImageModelId) as ImageModelDefinition | undefined;
                 return selectedModel?.params?.supportedAspectRatios?.includes('1:1') ?? false;
               })()}
               disabled={!!batchProgress}
             />
           </div>
-          <div className="w-px h-6 bg-zinc-800" />
+          <div className="w-px h-6 bg-white/10" />
           <div className="flex gap-2">
             <span className={STYLES.badge}>
               {project.scriptData.characters.length} CHARS
@@ -922,12 +844,11 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
       </div>
 
       <div className={STYLES.content}>
-        {/* Characters Section */}
         <section>
-          <div className="flex items-end justify-between mb-6 border-b border-zinc-800 pb-4">
+          <div className="flex items-end justify-between mb-6 border-b border-white/10 pb-4">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-cyan-300 rounded-full shadow-lg shadow-cyan-300/40" />
                 角色定妆 (Casting)
               </h3>
               <p className="text-xs text-zinc-500 mt-1 pl-3.5">为剧本中的角色生成一致的参考形象</p>
@@ -936,7 +857,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
               <button 
                 onClick={handleAddCharacter}
                 disabled={!!batchProgress}
-                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/10 text-zinc-300 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed border border-white/10"
               >
                 <Users className="w-3 h-3" />
                 新建角色
@@ -980,9 +901,8 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
           </div>
         </section>
 
-        {/* Scenes Section */}
         <section>
-          <div className="flex items-end justify-between mb-6 border-b border-zinc-800 pb-4">
+          <div className="flex items-end justify-between mb-6 border-b border-white/10 pb-4">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
@@ -994,7 +914,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
               <button 
                 onClick={handleAddScene}
                 disabled={!!batchProgress}
-                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/10 text-zinc-300 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed border border-white/10"
               >
                 <MapPin className="w-3 h-3" />
                 新建场景

@@ -1,19 +1,9 @@
-/**
- * StageScript 工具函数
- */
-
 import { Scene } from '../../types';
 
-/**
- * 获取最终选择的值（处理自定义选项）
- */
 export const getFinalValue = (selected: string, customInput: string): string => {
   return selected === 'custom' ? customInput : selected;
 };
 
-/**
- * 场景去重（根据 location）
- */
 export const deduplicateScenes = (scenes: Scene[] = []): Scene[] => {
   const seenLocations = new Set<string>();
   return scenes.filter(scene => {
@@ -26,9 +16,6 @@ export const deduplicateScenes = (scenes: Scene[] = []): Scene[] => {
   });
 };
 
-/**
- * 计算文本统计信息
- */
 export const getTextStats = (text: string) => {
   return {
     characters: text.length,
@@ -37,9 +24,6 @@ export const getTextStats = (text: string) => {
   };
 };
 
-/**
- * 验证配置完整性
- */
 export const validateConfig = (config: {
   script: string;
   duration: string;

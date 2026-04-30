@@ -1,42 +1,24 @@
-/**
- * StageExport 工具函数
- */
 import { ProjectState, RenderLog } from '../../types';
 
-/**
- * 收集并排序渲染日志
- */
 export const collectRenderLogs = (project: ProjectState): RenderLog[] => {
   const logs = project.renderLogs || [];
   return logs.sort((a, b) => b.timestamp - a.timestamp);
 };
 
-/**
- * 计算总时长
- */
 export const calculateEstimatedDuration = (project: ProjectState): number => {
   return project.shots.reduce((acc, shot) => acc + (shot.interval?.duration || 10), 0);
 };
 
-/**
- * 获取完成的镜头列表
- */
 export const getCompletedShots = (project: ProjectState) => {
   return project.shots.filter(s => s.interval?.videoUrl);
 };
 
-/**
- * 计算进度百分比
- */
 export const calculateProgress = (project: ProjectState): number => {
   const totalShots = project.shots.length;
   const completedShots = getCompletedShots(project).length;
   return totalShots > 0 ? Math.round((completedShots / totalShots) * 100) : 0;
 };
 
-/**
- * 格式化时间戳
- */
 export const formatTimestamp = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString('zh-CN', {
     year: 'numeric',
@@ -48,16 +30,10 @@ export const formatTimestamp = (timestamp: number): string => {
   });
 };
 
-/**
- * 格式化持续时间(毫秒转秒)
- */
 export const formatDuration = (duration: number): string => {
   return (duration / 1000).toFixed(1) + 's';
 };
 
-/**
- * 检查是否有可下载的资源
- */
 export const hasDownloadableAssets = (project: ProjectState): boolean => {
   return (
     (project.scriptData?.characters.some(c => c.referenceImage || c.variations?.some(v => v.referenceImage))) ||
@@ -66,9 +42,6 @@ export const hasDownloadableAssets = (project: ProjectState): boolean => {
   );
 };
 
-/**
- * 统计日志状态
- */
 export const getLogStats = (logs: RenderLog[]) => {
   return {
     total: logs.length,
@@ -77,9 +50,6 @@ export const getLogStats = (logs: RenderLog[]) => {
   };
 };
 
-/**
- * 获取日志类型图标
- */
 export const getLogTypeIcon = (type: string): string => {
   const iconMap: Record<string, string> = {
     'character': '👤',
@@ -91,9 +61,6 @@ export const getLogTypeIcon = (type: string): string => {
   return iconMap[type] || '📝';
 };
 
-/**
- * 获取状态颜色类名
- */
 export const getStatusColorClass = (status: string): string => {
   const colorMap: Record<string, string> = {
     'success': 'text-green-400 bg-green-500/10 border-green-500/30',
@@ -103,9 +70,6 @@ export const getStatusColorClass = (status: string): string => {
   return colorMap[status] || 'text-zinc-400 bg-zinc-500/10 border-zinc-500/30';
 };
 
-/**
- * 检查日志是否有详细信息
- */
 export const hasLogDetails = (log: RenderLog): boolean => {
   return !!(log.prompt || log.resourceId || log.inputTokens || log.outputTokens);
 };

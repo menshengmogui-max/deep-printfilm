@@ -31,10 +31,8 @@ const TimelineVisualizer: React.FC<Props> = ({ shots }) => {
                 }`}
                 title={`Shot ${idx+1}: ${shot.actionSummary}`}
               >
-                {/* Mini Progress Bar inside timeline segment */}
-                {isDone && <div className="h-full w-full bg-indigo-500/20"></div>}
+                {isDone && <div className="h-full w-full bg-cyan-300/20"></div>}
                 
-                {/* Hover Tooltip */}
                 <div className={STYLES.timeline.tooltip}>
                   <div className="bg-black text-white text-[10px] px-2 py-1 rounded border border-zinc-700 shadow-xl">
                     Shot {idx + 1}

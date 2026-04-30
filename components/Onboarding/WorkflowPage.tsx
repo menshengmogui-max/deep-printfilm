@@ -24,8 +24,8 @@ const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNext }) => {
             return (
               <React.Fragment key={index}>
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-2">
-                    <Icon className="w-5 h-5 text-indigo-400" />
+                  <div className="w-12 h-12 rounded-xl bg-cyan-300/10 border border-cyan-200/25 flex items-center justify-center mb-2">
+                    <Icon className="w-5 h-5 text-cyan-300" />
                   </div>
                   <span className="text-[10px] text-zinc-500 font-mono">{step.number}</span>
                 </div>
@@ -42,9 +42,9 @@ const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNext }) => {
           {WORKFLOW_STEPS.map((step, index) => (
             <div 
               key={index}
-              className="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3"
+              className="flex items-center gap-3 bg-white/[0.045] border border-white/10 rounded-xl px-4 py-3"
             >
-              <span className="text-indigo-400 font-bold text-sm">{step.number}</span>
+              <span className="text-cyan-300 font-bold text-sm">{step.number}</span>
               <span className="text-white font-medium text-sm">{step.title}</span>
               <span className="text-zinc-500 text-xs">→ {step.description}</span>
             </div>
@@ -55,7 +55,7 @@ const WorkflowPage: React.FC<WorkflowPageProps> = ({ onNext }) => {
       {/* 主按钮 */}
       <button
         onClick={onNext}
-        className="px-8 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-zinc-200 transition-all duration-200 transform hover:scale-105"
+        className="px-8 py-3 bg-cyan-300 text-slate-950 font-bold text-sm rounded-xl hover:bg-cyan-200 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
       >
         继续了解
       </button>

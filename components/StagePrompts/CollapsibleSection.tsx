@@ -22,7 +22,7 @@ const CollapsibleSection: React.FC<Props> = ({
     <div className="mb-8">
       <button
         onClick={onToggle}
-        className="flex items-center gap-2 mb-4 text-white hover:text-indigo-400 transition-colors"
+        className="flex items-center gap-2 mb-4 text-white hover:text-cyan-300 transition-colors"
       >
         {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         {icon}

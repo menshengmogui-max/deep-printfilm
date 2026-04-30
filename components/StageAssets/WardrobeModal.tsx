@@ -35,12 +35,11 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
   };
 
   return (
-    <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in duration-200">
-      <div className="bg-[#141414] border border-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-2xl flex flex-col shadow-2xl overflow-hidden">
-        {/* Modal Header */}
-        <div className="h-16 px-8 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-[#1A1A1A]">
+    <div className="absolute inset-0 z-40 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in duration-200">
+      <div className="bg-slate-950/90 border border-cyan-200/15 w-full max-w-4xl max-h-[90vh] rounded-[1.75rem] flex flex-col shadow-2xl shadow-cyan-950/30 overflow-hidden">
+        <div className="h-16 px-8 border-b border-white/10 flex items-center justify-between shrink-0 bg-white/[0.04]">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden border border-zinc-700">
+            <div className="w-10 h-10 rounded-2xl bg-white/10 overflow-hidden border border-white/10">
               {character.referenceImage && (
                 <img src={character.referenceImage} className="w-full h-full object-cover" alt={character.name} />
               )}
@@ -50,22 +49,20 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
               <p className="text-xs text-zinc-500 font-mono uppercase tracking-wider">Wardrobe & Variations</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
         
-        {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Base Look */}
             <div>
               <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                 <User className="w-4 h-4" /> Base Appearance
               </h4>
-              <div className="bg-[#0A0A0A] p-4 rounded-xl border border-zinc-800">
+              <div className="bg-white/[0.045] p-4 rounded-2xl border border-white/10 backdrop-blur">
                 <div 
-                  className="aspect-video bg-zinc-900 rounded-lg overflow-hidden mb-4 relative cursor-pointer"
+                  className="aspect-video bg-slate-950/70 rounded-2xl overflow-hidden mb-4 relative cursor-pointer border border-white/10"
                   onClick={() => character.referenceImage && onImageClick(character.referenceImage)}
                 >
                   {character.referenceImage ? (
@@ -81,7 +78,6 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
               </div>
             </div>
 
-            {/* Variations */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
@@ -90,13 +86,12 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
               </div>
 
               <div className="space-y-4">
-                {/* List */}
                 {(character.variations || []).map((variation) => (
                   <div 
                     key={variation.id} 
-                    className="flex gap-4 p-4 bg-[#0A0A0A] border border-zinc-800 rounded-xl group hover:border-zinc-700 transition-colors"
+                    className="flex gap-4 p-4 bg-white/[0.045] border border-white/10 rounded-2xl group hover:border-cyan-200/30 transition-colors backdrop-blur"
                   >
-                    <div className="w-20 h-24 bg-zinc-900 rounded-lg flex-shrink-0 overflow-hidden relative border border-zinc-800">
+                    <div className="w-20 h-24 bg-slate-950/70 rounded-xl flex-shrink-0 overflow-hidden relative border border-white/10">
                       {variation.referenceImage ? (
                         <img 
                           src={variation.referenceImage} 
@@ -142,7 +137,7 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
                           className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors disabled:opacity-50 ${
                             variation.status === 'failed' 
                               ? 'text-red-400 hover:text-red-300' 
-                              : 'text-indigo-400 hover:text-white'
+                              : 'text-cyan-300 hover:text-white'
                           }`}
                         >
                           <RefreshCw className={`w-3 h-3 ${variation.status === 'generating' ? 'animate-spin' : ''}`} />
@@ -169,26 +164,25 @@ const WardrobeModal: React.FC<WardrobeModalProps> = ({
                   </div>
                 ))}
 
-                {/* Add New */}
-                <div className="p-4 border border-dashed border-zinc-800 rounded-xl bg-[#0A0A0A]/50">
+                <div className="p-4 border border-dashed border-cyan-200/15 rounded-2xl bg-white/[0.035]">
                   <div className="space-y-3">
                     <input 
                       type="text" 
                       placeholder="Variation Name (e.g. Tactical Gear)" 
                       value={newVarName}
                       onChange={(e) => setNewVarName(e.target.value)}
-                      className="w-full bg-[#141414] border border-zinc-800 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600"
+                      className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-300/40"
                     />
                     <textarea 
                       placeholder="Visual description of outfit/state..."
                       value={newVarPrompt}
                       onChange={(e) => setNewVarPrompt(e.target.value)}
-                      className="w-full bg-[#141414] border border-zinc-800 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 resize-none h-16"
+                      className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-300/40 resize-none h-16"
                     />
                     <button 
                       onClick={handleAddVariation}
                       disabled={!newVarName || !newVarPrompt}
-                      className="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                      className="w-full py-2 bg-cyan-300 hover:bg-cyan-200 text-slate-950 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                     >
                       <Plus className="w-3 h-3" /> Add Variation
                     </button>

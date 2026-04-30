@@ -5,13 +5,13 @@ import { Shot, Character, Scene } from '../../types';
 interface SceneContextProps {
   shot: Shot;
   scene?: Scene;
-  scenes?: Scene[]; // 所有可用场景列表
+  scenes?: Scene[];
   characters: Character[];
   availableCharacters: Character[];
   onAddCharacter: (charId: string) => void;
   onRemoveCharacter: (charId: string) => void;
   onVariationChange: (charId: string, varId: string) => void;
-  onSceneChange?: (sceneId: string) => void; // 场景切换回调
+  onSceneChange?: (sceneId: string) => void;
 }
 
 const SceneContext: React.FC<SceneContextProps> = ({
@@ -26,7 +26,7 @@ const SceneContext: React.FC<SceneContextProps> = ({
   onSceneChange
 }) => {
   return (
-    <div className="bg-[#141414] p-5 rounded-xl border border-zinc-800 mb-6 space-y-4">
+    <div className="bg-white/[0.045] p-5 rounded-2xl border border-white/10 mb-6 space-y-4 backdrop-blur">
       <div className="flex items-center gap-2 mb-2">
         <MapPin className="w-4 h-4 text-zinc-500" />
         <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
@@ -35,11 +35,11 @@ const SceneContext: React.FC<SceneContextProps> = ({
       </div>
       
       <div className="flex gap-4">
-        <div className="w-28 h-20 bg-zinc-900 rounded-lg overflow-hidden flex-shrink-0 border border-zinc-700 relative">
+        <div className="w-28 h-20 bg-slate-950/70 rounded-2xl overflow-hidden flex-shrink-0 border border-white/10 relative">
           {scene?.referenceImage ? (
             <img src={scene.referenceImage} className="w-full h-full object-cover" alt={scene.location} />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+            <div className="w-full h-full flex items-center justify-center bg-white/[0.04]">
               <MapPin className="w-6 h-6 text-zinc-700" />
             </div>
           )}
@@ -51,7 +51,7 @@ const SceneContext: React.FC<SceneContextProps> = ({
               <select
                 value={shot.sceneId}
                 onChange={(e) => onSceneChange(e.target.value)}
-                className="flex-1 min-w-0 max-w-[180px] bg-zinc-900 text-white text-sm font-bold border border-zinc-700 rounded px-2 py-1 outline-none focus:border-indigo-500 hover:border-zinc-600 transition-colors truncate"
+                className="flex-1 min-w-0 max-w-[180px] bg-white/[0.06] text-white text-sm font-bold border border-white/10 rounded-xl px-2 py-1 outline-none focus:border-cyan-300/40 hover:border-cyan-300/30 transition-colors truncate"
                 style={{ textOverflow: 'ellipsis' }}
                 title={scene?.location}
               >
@@ -66,14 +66,13 @@ const SceneContext: React.FC<SceneContextProps> = ({
                 {scene?.location || '未知场景'}
               </span>
             )}
-            <span className="text-sm px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded-full flex items-center gap-1 shrink-0">
+            <span className="text-sm px-2 py-0.5 bg-cyan-300/10 text-cyan-100/65 rounded-full flex items-center gap-1 shrink-0 border border-cyan-200/15">
               <Clock className="w-3 h-3" />
               {scene?.time}
             </span>
           </div>
           <p className="text-xs text-zinc-500 line-clamp-2">{scene?.atmosphere}</p>
           
-          {/* Character List */}
           <div className="flex flex-col gap-2 pt-2">
             {characters.map(char => {
               const hasVars = char.variations && char.variations.length > 0;
@@ -82,7 +81,7 @@ const SceneContext: React.FC<SceneContextProps> = ({
               return (
                 <div 
                   key={char.id} 
-                  className="flex items-center justify-between bg-zinc-900 rounded p-1.5 border border-zinc-800 group"
+                  className="flex items-center justify-between bg-slate-950/45 rounded-xl p-1.5 border border-white/10 group"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-zinc-700 overflow-hidden flex-shrink-0">
@@ -98,7 +97,7 @@ const SceneContext: React.FC<SceneContextProps> = ({
                       <select
                         value={selectedVarId || ''}
                         onChange={(e) => onVariationChange(char.id, e.target.value)}
-                        className="text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700 rounded px-1.5 py-0.5 outline-none"
+                        className="text-[10px] bg-white/[0.06] text-zinc-400 border border-white/10 rounded-lg px-1.5 py-0.5 outline-none"
                       >
                         <option value="">基础造型</option>
                         {char.variations!.map(v => (
@@ -121,7 +120,6 @@ const SceneContext: React.FC<SceneContextProps> = ({
               );
             })}
             
-            {/* Add Character Selector */}
             {availableCharacters.length > 0 && (
               <div className="flex items-center gap-2 pt-1">
                 <select 
@@ -131,7 +129,7 @@ const SceneContext: React.FC<SceneContextProps> = ({
                       e.target.value = "";
                     }
                   }}
-                  className="flex-1 bg-zinc-900 text-[11px] text-zinc-400 border border-zinc-700 rounded px-2 py-1.5 outline-none focus:border-indigo-500 hover:border-zinc-600 transition-colors"
+                  className="flex-1 bg-white/[0.06] text-[11px] text-zinc-400 border border-white/10 rounded-xl px-2 py-1.5 outline-none focus:border-cyan-300/40 hover:border-cyan-300/30 transition-colors"
                 >
                   <option value="">+ 添加角色到此镜头</option>
                   {availableCharacters.map(char => (

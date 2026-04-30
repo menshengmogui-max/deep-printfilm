@@ -11,7 +11,6 @@ interface EditModalProps {
   onChange: (value: string) => void;
   placeholder?: string;
   textareaClassName?: string;
-  // AI生成功能相关
   showAIGenerate?: boolean;
   onAIGenerate?: () => Promise<void>;
   isAIGenerating?: boolean;
@@ -41,27 +40,26 @@ const EditModal: React.FC<EditModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-[#1A1A1A] border border-zinc-700 rounded-xl p-6 max-w-2xl w-full space-y-4 shadow-2xl animate-in fade-in duration-200"
+        className="bg-slate-950/90 border border-cyan-200/15 rounded-[1.75rem] p-6 max-w-2xl w-full space-y-4 shadow-2xl shadow-cyan-950/30 animate-in fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
           <h3 className="text-white font-bold flex items-center gap-2">
-            {icon || <Edit2 className="w-4 h-4 text-indigo-400" />}
+            {icon || <Edit2 className="w-4 h-4 text-cyan-300" />}
             {title}
           </h3>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
         
-        {/* AI生成按钮 */}
         {showAIGenerate && (
           <div className="flex items-center gap-2">
             <button
@@ -69,8 +67,8 @@ const EditModal: React.FC<EditModalProps> = ({
               disabled={isAIGenerating}
               className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                 isAIGenerating
-                  ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed'
-                  : 'bg-white text-black hover:bg-zinc-200 shadow-lg'
+                  ? 'bg-white/10 text-zinc-400 cursor-not-allowed'
+                  : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200 shadow-lg shadow-cyan-500/20'
               }`}
             >
               {isAIGenerating ? (
@@ -91,7 +89,7 @@ const EditModal: React.FC<EditModalProps> = ({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full h-64 bg-black text-white border border-zinc-700 rounded-lg p-4 text-sm outline-none focus:border-zinc-500 transition-colors resize-none ${textareaClassName}`}
+          className={`w-full h-64 bg-white/[0.06] text-white border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-cyan-300/40 transition-colors resize-none ${textareaClassName}`}
           placeholder={placeholder}
           autoFocus
           disabled={isAIGenerating}
@@ -101,14 +99,14 @@ const EditModal: React.FC<EditModalProps> = ({
           <button
             onClick={onClose}
             disabled={isAIGenerating}
-            className="px-4 py-2 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-white/10 text-zinc-300 hover:bg-white/15 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             取消
           </button>
           <button
             onClick={onSave}
             disabled={isAIGenerating}
-            className="px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-cyan-300 text-slate-950 hover:bg-cyan-200 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Check className="w-4 h-4" />
             保存

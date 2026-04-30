@@ -1,3 +1,4 @@
+// Author: forsearch | Updated: 2026-04-30
 import React, { useState, useEffect } from 'react';
 import { ProjectState } from '../../types';
 import { parseScriptToData, generateShotList, continueScript, continueScriptStream, rewriteScript, rewriteScriptStream } from '../../services/geminiService';
@@ -17,7 +18,6 @@ type TabMode = 'story' | 'script';
 const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   const [activeTab, setActiveTab] = useState<TabMode>(project.scriptData ? 'script' : 'story');
   
-  // Configuration state
   const [localScript, setLocalScript] = useState(project.rawScript);
   const [localTitle, setLocalTitle] = useState(project.title);
   const [localDuration, setLocalDuration] = useState(project.targetDuration || DEFAULTS.duration);
@@ -28,13 +28,11 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   const [customModelInput, setCustomModelInput] = useState('');
   const [customStyleInput, setCustomStyleInput] = useState('');
   
-  // Processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [isContinuing, setIsContinuing] = useState(false);
   const [isRewriting, setIsRewriting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Editing state - unified
   const [editingCharacterId, setEditingCharacterId] = useState<string | null>(null);
   const [editingCharacterPrompt, setEditingCharacterPrompt] = useState('');
   const [editingShotId, setEditingShotId] = useState<string | null>(null);
@@ -70,10 +68,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
       return;
     }
 
-    console.log('🎯 用户选择的模型:', localModel);
-    console.log('🎯 最终使用的模型:', finalModel);
-    console.log('🎨 视觉风格:', finalVisualStyle);
-
     setIsProcessing(true);
     setError(null);
     try {
@@ -87,7 +81,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
         isParsingScript: true
       });
 
-      console.log('📞 调用 parseScriptToData, 传入模型:', finalModel);
       const scriptData = await parseScriptToData(localScript, localLanguage, finalModel, finalVisualStyle);
       
       scriptData.targetDuration = finalDuration;
@@ -99,7 +92,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
         scriptData.title = localTitle;
       }
 
-      console.log('📞 调用 generateShotList, 传入模型:', finalModel);
       const shots = await generateShotList(scriptData, finalModel);
 
       updateProject({ 
@@ -217,7 +209,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
     }
   };
 
-  // Character editing handlers
   const handleEditCharacter = (charId: string, prompt: string) => {
     setEditingCharacterId(charId);
     setEditingCharacterPrompt(prompt);
@@ -246,7 +237,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
     setEditingCharacterPrompt('');
   };
 
-  // Shot prompt editing handlers
   const handleEditShotPrompt = (shotId: string, prompt: string) => {
     setEditingShotId(shotId);
     setEditingShotPrompt(prompt);
@@ -277,7 +267,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
     setEditingShotPrompt('');
   };
 
-  // Shot characters editing handlers
   const handleEditShotCharacters = (shotId: string) => {
     setEditingShotCharactersId(shotId);
   };
@@ -306,7 +295,6 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
     setEditingShotCharactersId(null);
   };
 
-  // Shot action editing handlers
   const handleEditShotAction = (shotId: string, action: string, dialogue: string) => {
     setEditingShotActionId(shotId);
     setEditingShotActionText(action);
@@ -340,9 +328,9 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   };
 
   return (
-    <div className="h-full bg-[#050505]">
+    <div className="h-full bg-transparent relative z-10">
       {activeTab === 'story' ? (
-        <div className="flex h-full bg-[#050505] text-zinc-300">
+        <div className="flex h-full bg-slate-950/35 text-slate-200 backdrop-blur-sm">
           <ConfigPanel
             title={localTitle}
             duration={localDuration}

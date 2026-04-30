@@ -1,8 +1,4 @@
-/**
- * 模型服务统一入口
- * 应用层只需调用这些函数，无需关心底层模型
- */
-
+// Author: forsearch | Updated: 2026-04-30
 import {
   ChatOptions,
   ImageGenerateOptions,
@@ -20,56 +16,24 @@ import {
 } from './modelRegistry';
 import { setGlobalApiKey as setGeminiApiKey } from './geminiService';
 
-// 导出 ApiKeyError 供外部使用
 export { ApiKeyError };
 
-// ============================================
-// 基础模型调用
-// ============================================
-
-/**
- * 调用对话模型
- * @param options 调用参数
- * @returns AI 生成的文本
- */
 export const chat = async (options: ChatOptions): Promise<string> => {
   return callChatApi(options);
 };
 
-/**
- * 调用对话模型（JSON 格式响应）
- * @param options 调用参数
- * @returns AI 生成的 JSON 字符串
- */
 export const chatJson = async (options: Omit<ChatOptions, 'responseFormat'>): Promise<string> => {
   return callChatApi({ ...options, responseFormat: 'json' });
 };
 
-/**
- * 生成图片
- * @param options 生成参数
- * @returns Base64 格式的图片数据
- */
 export const generateImage = async (options: ImageGenerateOptions): Promise<string> => {
   return callImageApi(options);
 };
 
-/**
- * 生成视频
- * @param options 生成参数
- * @returns Base64 格式的视频数据
- */
 export const generateVideo = async (options: VideoGenerateOptions): Promise<string> => {
   return callVideoApi(options);
 };
 
-// ============================================
-// 高级业务函数
-// ============================================
-
-/**
- * 解析剧本为结构化数据
- */
 export const parseScript = async (options: {
   rawText: string;
   language: string;
@@ -80,9 +44,6 @@ export const parseScript = async (options: {
   return JSON.parse(result);
 };
 
-/**
- * 生成分镜列表
- */
 export const generateShots = async (options: {
   scriptData: any;
 }): Promise<any[]> => {
@@ -92,9 +53,6 @@ export const generateShots = async (options: {
   return parsed.shots || [];
 };
 
-/**
- * 生成视觉提示词
- */
 export const generateVisualPrompts = async (options: {
   type: 'character' | 'scene';
   data: any;
@@ -107,9 +65,6 @@ export const generateVisualPrompts = async (options: {
   return JSON.parse(result);
 };
 
-/**
- * 优化关键帧提示词
- */
 export const optimizeKeyframePrompt = async (options: {
   frameType: 'start' | 'end';
   actionSummary: string;
@@ -122,9 +77,6 @@ export const optimizeKeyframePrompt = async (options: {
   return chat({ prompt });
 };
 
-/**
- * 生成动作建议
- */
 export const generateActionSuggestion = async (options: {
   startFramePrompt: string;
   endFramePrompt: string;
@@ -134,9 +86,6 @@ export const generateActionSuggestion = async (options: {
   return chat({ prompt });
 };
 
-/**
- * 拆分镜头
- */
 export const splitShot = async (options: {
   shot: any;
   sceneInfo: string;
@@ -148,38 +97,18 @@ export const splitShot = async (options: {
   return JSON.parse(result);
 };
 
-// ============================================
-// API Key 管理
-// ============================================
-
-/**
- * 验证 API Key
- */
 export const verifyApiKey = async (apiKey: string): Promise<{ success: boolean; message: string }> => {
   return verifyChatApiKey(apiKey);
 };
 
-/**
- * 获取全局 API Key
- */
 export const getApiKey = (): string | undefined => {
   return getGlobalApiKey();
 };
 
-/**
- * 设置全局 API Key（经 geminiService 同步到 modelRegistry 与运行时，保证各步骤使用同一 Key）
- */
 export const setApiKey = (apiKey: string): void => {
   setGeminiApiKey(apiKey);
 };
 
-// ============================================
-// 辅助函数
-// ============================================
-
-/**
- * 获取当前视频模型的支持参数
- */
 export const getVideoModelCapabilities = (): {
   supportedAspectRatios: AspectRatio[];
   supportedDurations: VideoDuration[];
@@ -203,10 +132,6 @@ export const getVideoModelCapabilities = (): {
     defaultDuration: model.params.defaultDuration,
   };
 };
-
-// ============================================
-// 提示词构建函数（私有）
-// ============================================
 
 function buildScriptParsePrompt(rawText: string, language: string, visualStyle: string): string {
   return `You are a professional screenwriter assistant. Parse the following script/story into structured data.

@@ -60,47 +60,44 @@ const SceneBreakdown: React.FC<Props> = ({
   const uniqueScenes = deduplicateScenes(project.scriptData?.scenes);
 
   return (
-    <div className="flex flex-col h-full bg-[#050505] animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="h-16 px-6 border-b border-zinc-800 bg-[#080808] flex items-center justify-between shrink-0 z-20">
+    <div className="flex flex-col h-full bg-slate-950/35 animate-in fade-in duration-500 backdrop-blur-sm">
+      <div className="h-16 px-6 border-b border-white/10 bg-slate-950/55 flex items-center justify-between shrink-0 z-20 backdrop-blur-xl">
         <div className="flex items-center gap-6">
           <h2 className="text-lg font-light text-white tracking-tight flex items-center gap-3">
-            <List className="w-5 h-5 text-zinc-400" />
+            <List className="w-5 h-5 text-cyan-300" />
             拍摄清单
-            <span className="text-xs text-zinc-600 font-mono uppercase tracking-wider ml-1">Script Manifest</span>
+            <span className="text-xs text-cyan-100/40 font-mono uppercase tracking-wider ml-1">Script Manifest</span>
           </h2>
-          <div className="h-6 w-px bg-zinc-800"></div>
+          <div className="h-6 w-px bg-white/10"></div>
           
           <div className="flex items-center gap-4">
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-600 uppercase tracking-widest">项目</span>
+              <span className="text-[10px] text-cyan-100/40 uppercase tracking-widest">项目</span>
               <span className="text-sm text-zinc-200 font-medium">{project.scriptData?.title}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-600 uppercase tracking-widest">时长</span>
-              <span className="text-sm font-mono text-zinc-400">{project.targetDuration}</span>
+              <span className="text-[10px] text-cyan-100/40 uppercase tracking-widest">时长</span>
+              <span className="text-sm font-mono text-cyan-100/70">{project.targetDuration}</span>
             </div>
           </div>
         </div>
         
         <button 
           onClick={onBackToStory}
-          className="text-xs font-bold text-zinc-400 hover:text-white flex items-center gap-2 px-4 py-2 hover:bg-zinc-800 rounded-lg transition-all"
+          className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-2 px-4 py-2 hover:bg-white/10 rounded-xl transition-all"
         >
           <ArrowLeft className="w-3 h-3" />
           返回编辑
         </button>
       </div>
 
-      {/* Content Split View */}
       <div className="flex-1 overflow-hidden flex">
-        {/* Sidebar */}
-        <div className="w-72 border-r border-zinc-800 bg-[#0A0A0A] flex flex-col hidden lg:flex">
-          <div className="p-6 border-b border-zinc-900">
-            <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div className="w-72 border-r border-white/10 bg-slate-950/55 flex flex-col hidden lg:flex backdrop-blur-xl">
+          <div className="p-6 border-b border-white/10">
+            <h3 className="text-[10px] font-bold text-cyan-100/45 uppercase tracking-widest mb-4 flex items-center gap-2">
               <TextQuote className="w-3 h-3" /> 故事梗概
             </h3>
-            <p className="text-xs text-zinc-400 italic leading-relaxed font-serif">"{project.scriptData?.logline}"</p>
+            <p className="text-xs text-slate-300 italic leading-relaxed font-serif">"{project.scriptData?.logline}"</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-8">
@@ -117,32 +114,29 @@ const SceneBreakdown: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Main: Script & Shots */}
-        <div className="flex-1 overflow-y-auto bg-[#050505] p-0">
+        <div className="flex-1 overflow-y-auto bg-slate-950/20 p-0">
           <div className="max-w-5xl mx-auto pb-20">
             {project.scriptData?.scenes.map((scene, index) => {
               const sceneShots = project.shots.filter(s => s.sceneId === scene.id);
               if (sceneShots.length === 0) return null;
 
               return (
-                <div key={scene.id} className="border-b border-zinc-800">
-                  {/* Scene Header */}
-                  <div className="sticky top-0 z-10 bg-[#080808]/95 backdrop-blur border-y border-zinc-800 px-8 py-5 flex items-center justify-between shadow-lg shadow-black/20">
+                <div key={scene.id} className="border-b border-white/10">
+                  <div className="sticky top-0 z-10 bg-slate-950/85 backdrop-blur-xl border-y border-white/10 px-8 py-5 flex items-center justify-between shadow-lg shadow-black/20">
                     <div className="flex items-baseline gap-4">
                       <span className="text-3xl font-bold text-white/10 font-mono">{(index + 1).toString().padStart(2, '0')}</span>
                       <h3 className="text-lg font-bold text-white uppercase tracking-wider">
                         {scene.location}
                       </h3>
                     </div>
-                    <div className="flex gap-4 text-[10px] font-mono uppercase tracking-widest text-zinc-500">
+                    <div className="flex gap-4 text-[10px] font-mono uppercase tracking-widest text-cyan-100/45">
                       <span className="flex items-center gap-1.5"><Clock className="w-3 h-3"/> {scene.time}</span>
                       <span className="text-zinc-700">|</span>
                       <span>{scene.atmosphere}</span>
                     </div>
                   </div>
 
-                  {/* Shot Rows */}
-                  <div className="divide-y divide-zinc-800/50">
+                  <div className="divide-y divide-white/10">
                     {sceneShots.map((shot) => (
                       <ShotRow
                         key={shot.id}

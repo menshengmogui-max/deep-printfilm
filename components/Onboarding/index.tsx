@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { ONBOARDING_STORAGE_KEY, ONBOARDING_PAGES, TOTAL_PAGES } from './constants';
+import { LEGACY_ONBOARDING_STORAGE_KEY, ONBOARDING_STORAGE_KEY, ONBOARDING_PAGES, TOTAL_PAGES } from './constants';
 import ProgressDots from './ProgressDots';
 import WelcomePage from './WelcomePage';
 import WorkflowPage from './WorkflowPage';
@@ -53,6 +53,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, onQuickStart, curre
 
   const markOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    localStorage.removeItem(LEGACY_ONBOARDING_STORAGE_KEY);
   };
 
   // 处理 API Key 保存
@@ -94,16 +95,16 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, onQuickStart, curre
     <div className="fixed inset-0 z-[200] flex items-center justify-center">
       {/* 背景遮罩 */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl"
         onClick={handleSkip}
       />
 
       {/* 弹窗容器 */}
-      <div className="relative z-10 w-full max-w-lg mx-4 bg-[#0A0A0A] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300">
+      <div className="relative z-10 w-full max-w-lg mx-4 bg-slate-950/90 border border-cyan-200/15 rounded-[1.75rem] shadow-2xl shadow-cyan-950/30 overflow-hidden animate-in zoom-in-95 fade-in duration-300 backdrop-blur-xl">
         {/* 关闭按钮 */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors rounded-full hover:bg-zinc-800"
+          className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors rounded-xl hover:bg-white/10"
           aria-label="关闭引导"
         >
           <X className="w-4 h-4" />
@@ -132,12 +133,20 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, onQuickStart, curre
 
 // 检查是否需要显示引导
 export const shouldShowOnboarding = (): boolean => {
-  return localStorage.getItem(ONBOARDING_STORAGE_KEY) !== 'true';
+  const isComplete =
+    localStorage.getItem(ONBOARDING_STORAGE_KEY) === 'true' ||
+    localStorage.getItem(LEGACY_ONBOARDING_STORAGE_KEY) === 'true';
+  if (isComplete) {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    localStorage.removeItem(LEGACY_ONBOARDING_STORAGE_KEY);
+  }
+  return !isComplete;
 };
 
 // 重置引导状态（用于帮助菜单中重新触发）
 export const resetOnboarding = (): void => {
   localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_ONBOARDING_STORAGE_KEY);
 };
 
 export default Onboarding;

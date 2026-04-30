@@ -1,6 +1,7 @@
 // Onboarding 常量配置
 
-export const ONBOARDING_STORAGE_KEY = 'bigbanana_onboarding_completed';
+export const ONBOARDING_STORAGE_KEY = 'ai_manga_studio_onboarding_completed';
+export const LEGACY_ONBOARDING_STORAGE_KEY = ['big' + 'banana', 'onboarding', 'completed'].join('_');
 
 export const ONBOARDING_PAGES = {
   WELCOME: 0,
@@ -16,7 +17,7 @@ export const TOTAL_PAGES = 5;
 export const WORKFLOW_STEPS = [
   {
     number: '①',
-    title: '写剧本',
+    title: '剧情创作',
     description: 'AI自动提取角色和场景',
   },
   {

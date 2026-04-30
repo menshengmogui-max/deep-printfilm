@@ -21,7 +21,7 @@ import { getProviders } from '../../services/modelRegistry';
 import { DEPEI_PROVIDER_BASE_URL } from '../../types/model';
 import { useAlert } from '../GlobalAlert';
 
-/** 只允许使用漫剧工场（http://api.gitcc.com）提供商 */
+/** 只允许使用 GitCC API 提供商（http://api.gitcc.com） */
 const normalizeBaseUrl = (url: string) => url.trim().replace(/\/+$/, '').toLowerCase();
 const getAllowedProviders = () =>
   getProviders().filter((p) => normalizeBaseUrl(p.baseUrl) === normalizeBaseUrl(DEPEI_PROVIDER_BASE_URL));
@@ -44,7 +44,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
   const [apiKey, setApiKey] = useState('');
   const [videoMode, setVideoMode] = useState<'sync' | 'async' | 'doubao'>('sync');
   
-  // 固定使用漫剧工场提供商，不允许添加其他
+  // 固定使用 GitCC API 提供商，不允许添加其他
   const selectedProviderId = defaultProvider?.id || 'antsk';
   
   // 展开高级选项
@@ -56,7 +56,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
       return;
     }
 
-    // 仅使用漫剧工场提供商
+    // 仅使用 GitCC API 提供商
     const providerId = selectedProviderId;
 
     // 根据模型类型设置默认参数
@@ -92,7 +92,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
   };
 
   return (
-    <div className="bg-zinc-900/50 border border-zinc-700 rounded-lg p-4 space-y-4">
+    <div className="bg-white/[0.045] border border-white/10 rounded-2xl p-4 space-y-4">
       <h4 className="text-sm font-bold text-white">添加自定义模型</h4>
       
       {/* 基础信息 */}
@@ -104,7 +104,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="如：GPT-4 Turbo"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600"
+            className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500"
           />
         </div>
         <div>
@@ -114,7 +114,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
             value={apiModel}
             onChange={(e) => setApiModel(e.target.value)}
             placeholder="如：gpt-4-turbo、claude-3-opus"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600 font-mono"
+            className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 font-mono"
           />
           <p className="text-[9px] text-zinc-600 mt-1">
             该字段会作为 API 请求中的 model 参数；内部 ID 会自动生成
@@ -129,7 +129,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="可选的描述信息"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600"
+          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500"
         />
       </div>
 
@@ -141,7 +141,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
           value={endpoint}
           onChange={(e) => setEndpoint(e.target.value)}
           placeholder={type === 'chat' ? '/v1/chat/completions' : type === 'image' ? '/v1beta/models/{model}:generateContent' : '/v1/videos'}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600 font-mono"
+          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 font-mono"
         />
         <p className="text-[9px] text-zinc-600 mt-1">
           留空则使用默认端点
@@ -156,19 +156,11 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder="留空则使用全局 API Key"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-white placeholder:text-zinc-600 font-mono"
+          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 font-mono"
         />
         <p className="text-[9px] text-zinc-600 mt-1">
           为此模型单独配置 API Key，留空则使用全局配置的 Key
         </p>
-      </div>
-
-      {/* API 提供商：仅允许漫剧工场（http://api.gitcc.com） */}
-      <div>
-        <label className="text-[10px] text-zinc-500 block mb-2">API 提供商</label>
-        <div className="w-full bg-zinc-800/50 border border-zinc-700 rounded px-3 py-2.5 text-xs text-zinc-400">
-          漫剧工场（{DEPEI_PROVIDER_BASE_URL}）
-        </div>
       </div>
 
       {/* 视频模型特有选项 */}
@@ -180,8 +172,8 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
               onClick={() => setVideoMode('sync')}
               className={`flex-1 py-2 text-xs rounded transition-colors ${
                 videoMode === 'sync'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  ? 'bg-cyan-300 text-slate-950'
+                  : 'bg-white/[0.06] text-zinc-400 hover:bg-white/10'
               }`}
             >
               同步模式（Chat Completion 类）
@@ -190,8 +182,8 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
               onClick={() => setVideoMode('async')}
               className={`flex-1 py-2 text-xs rounded transition-colors ${
                 videoMode === 'async'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  ? 'bg-cyan-300 text-slate-950'
+                  : 'bg-white/[0.06] text-zinc-400 hover:bg-white/10'
               }`}
             >
               异步模式（Sora 类）
@@ -200,8 +192,8 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
               onClick={() => setVideoMode('doubao')}
               className={`flex-1 py-2 text-xs rounded transition-colors ${
                 videoMode === 'doubao'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  ? 'bg-cyan-300 text-slate-950'
+                  : 'bg-white/[0.06] text-zinc-400 hover:bg-white/10'
               }`}
             >
               Doubao Seedance（Ark 任务制）
@@ -217,14 +209,14 @@ const AddModelForm: React.FC<AddModelFormProps> = ({ type, onSave, onCancel }) =
       <div className="flex gap-3 pt-2">
         <button
           onClick={handleSave}
-          className="flex-1 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded hover:bg-indigo-500 transition-colors flex items-center justify-center gap-1"
+          className="flex-1 py-2.5 bg-cyan-300 text-slate-950 text-xs font-bold rounded-xl hover:bg-cyan-200 transition-colors flex items-center justify-center gap-1"
         >
           <Check className="w-3 h-3" />
           添加模型
         </button>
         <button
           onClick={onCancel}
-          className="px-4 py-2.5 bg-zinc-800 text-zinc-400 text-xs rounded hover:bg-zinc-700 transition-colors"
+          className="px-4 py-2.5 bg-white/10 text-zinc-400 text-xs rounded-xl hover:bg-white/15 transition-colors"
         >
           <X className="w-3 h-3" />
         </button>

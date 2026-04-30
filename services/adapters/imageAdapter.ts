@@ -1,15 +1,7 @@
-/**
- * 图片模型适配器
- * 处理 Gemini Image API
- */
-
 import { ImageModelDefinition, ImageGenerateOptions, AspectRatio } from '../../types/model';
 import { getApiKeyForModel, getApiBaseUrlForModel, getActiveImageModel } from '../modelRegistry';
 import { ApiKeyError } from './chatAdapter';
 
-/**
- * 重试操作
- */
 const retryOperation = async <T>(
   operation: () => Promise<T>,
   maxRetries: number = 3,
@@ -22,7 +14,6 @@ const retryOperation = async <T>(
       return await operation();
     } catch (error: any) {
       lastError = error;
-      // 400/401/403 错误不重试
       if (error.message?.includes('400') || 
           error.message?.includes('401') || 
           error.message?.includes('403')) {
@@ -37,20 +28,15 @@ const retryOperation = async <T>(
   throw lastError;
 };
 
-/**
- * 调用图片生成 API
- */
 export const callImageApi = async (
   options: ImageGenerateOptions,
   model?: ImageModelDefinition
 ): Promise<string> => {
-  // 获取当前激活的模型
   const activeModel = model || getActiveImageModel();
   if (!activeModel) {
     throw new Error('没有可用的图片模型');
   }
 
-  // 获取 API 配置
   const apiKey = getApiKeyForModel(activeModel.id);
   if (!apiKey) {
     throw new ApiKeyError('API Key 缺失，请在设置中配置 API Key');
@@ -58,15 +44,9 @@ export const callImageApi = async (
   
   const apiBase = getApiBaseUrlForModel(activeModel.id);
   const apiModel = activeModel.apiModel || activeModel.id;
-  const endpoint = activeModel.endpoint || `/v1beta/models/${apiModel}:generateContent`;
-  
-  // 确定宽高比
-  const aspectRatio = options.aspectRatio || activeModel.params.defaultAspectRatio;
-  
-  // 构建提示词
+  const endpoint = '/v1/chat/completions';
+
   let finalPrompt = options.prompt;
-  
-  // 如果有参考图，添加一致性指令
   if (options.referenceImages && options.referenceImages.length > 0) {
     finalPrompt = `
       ⚠️⚠️⚠️ CRITICAL REQUIREMENTS - CHARACTER CONSISTENCY ⚠️⚠️⚠️
@@ -94,43 +74,12 @@ export const callImageApi = async (
     `;
   }
 
-  // 构建请求 parts
-  const parts: any[] = [{ text: finalPrompt }];
-
-  // 添加参考图片
-  if (options.referenceImages) {
-    options.referenceImages.forEach((imgUrl) => {
-      const match = imgUrl.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
-      if (match) {
-        parts.push({
-          inlineData: {
-            mimeType: match[1],
-            data: match[2],
-          },
-        });
-      }
-    });
-  }
-
-  // 构建请求体
   const requestBody: any = {
-    contents: [{
-      role: 'user',
-      parts: parts,
-    }],
-    generationConfig: {
-      responseModalities: ['TEXT', 'IMAGE'],
-    },
+    model: apiModel,
+    messages: [{ role: 'user', content: finalPrompt }],
+    max_tokens: 2048,
   };
-  
-  // 非默认宽高比需要添加 imageConfig
-  if (aspectRatio !== '16:9') {
-    requestBody.generationConfig.imageConfig = {
-      aspectRatio: aspectRatio,
-    };
-  }
 
-  // 调用 API
   const response = await retryOperation(async () => {
     const res = await fetch(`${apiBase}${endpoint}`, {
       method: 'POST',
@@ -166,7 +115,36 @@ export const callImageApi = async (
     return await res.json();
   });
 
-  // 提取 base64 图片
+  const extractDataUrlFromContent = (text: string): string | null => {
+    if (!text || typeof text !== 'string') return null;
+    if (/^data:image\//i.test(text.trim())) return text.trim();
+    const markdownMatch = text.match(/!\[[^\]]*\]\((data:image\/[^;]+;base64,[^)]+)\)/i);
+    if (markdownMatch) return markdownMatch[1];
+    const anyDataMatch = text.match(/(data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)/);
+    if (anyDataMatch) return anyDataMatch[1];
+    return null;
+  };
+
+  // 兼容 OpenAI choices 與 Gemini candidates 兩種圖片返回格式。
+  const choices = response.choices;
+  if (choices && choices.length > 0) {
+    const msg = choices[0].message;
+    const content = msg?.content;
+    if (content) {
+      if (typeof content === 'string') {
+        const result = extractDataUrlFromContent(content) ?? (content.length > 100 ? `data:image/png;base64,${content}` : null);
+        if (result) return result;
+      }
+      if (Array.isArray(content)) {
+        for (const item of content) {
+          if (item.type === 'image_url' && item.image_url?.url) {
+            const url = item.image_url.url;
+            return url.startsWith('data:') ? url : `data:image/png;base64,${url}`;
+          }
+        }
+      }
+    }
+  }
   const candidates = response.candidates || [];
   if (candidates.length > 0 && candidates[0].content && candidates[0].content.parts) {
     for (const part of candidates[0].content.parts) {
@@ -175,13 +153,9 @@ export const callImageApi = async (
       }
     }
   }
-
   throw new Error('图片生成失败：未能从响应中提取图片数据');
 };
 
-/**
- * 检查宽高比是否支持
- */
 export const isAspectRatioSupported = (
   aspectRatio: AspectRatio,
   model?: ImageModelDefinition

@@ -63,15 +63,15 @@ const SceneCard: React.FC<SceneCardProps> = ({
   };
 
   return (
-    <div className="bg-[#141414] border border-zinc-800 rounded-xl overflow-hidden flex flex-col group hover:border-zinc-600 transition-all hover:shadow-lg">
+    <div className="bg-white/[0.045] border border-white/10 rounded-2xl overflow-hidden flex flex-col group hover:border-cyan-200/35 transition-all hover:shadow-xl hover:shadow-cyan-950/20 backdrop-blur">
       <div 
-        className="aspect-video bg-zinc-900 relative cursor-pointer"
+        className="aspect-video bg-slate-950/70 relative cursor-pointer"
         onClick={() => scene.referenceImage && onImageClick(scene.referenceImage)}
       >
         {scene.referenceImage ? (
           <>
             <img src={scene.referenceImage} alt={scene.location} className="w-full h-full object-cover" />
-            <div className="absolute top-2 right-2 p-1 bg-indigo-500 text-white rounded shadow-lg backdrop-blur">
+            <div className="absolute top-2 right-2 p-1 bg-cyan-300 text-slate-950 rounded-lg shadow-lg shadow-cyan-500/20 backdrop-blur">
               <Check className="w-3 h-3" />
             </div>
           </>
@@ -79,7 +79,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
           <div className="w-full h-full flex flex-col items-center justify-center text-zinc-700 p-4 text-center">
             {isGenerating ? (
               <>
-                <Loader2 className="w-10 h-10 mb-3 animate-spin text-indigo-500" />
+                <Loader2 className="w-10 h-10 mb-3 animate-spin text-cyan-300" />
                 <span className="text-[10px] text-zinc-500">生成中...</span>
               </>
             ) : scene.status === 'failed' ? (
@@ -114,7 +114,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
         )}
       </div>
       
-      <div className="p-3 border-t border-zinc-800 bg-[#111]">
+      <div className="p-3 border-t border-white/10 bg-slate-950/35">
         <div className="flex justify-between items-center mb-1">
           {isEditingLocation ? (
             <input
@@ -124,7 +124,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
               onBlur={handleSaveLocation}
               onKeyPress={(e) => e.key === 'Enter' && handleSaveLocation()}
               autoFocus
-              className="font-bold text-zinc-200 text-sm bg-zinc-800 border border-zinc-600 rounded px-2 py-1 flex-1 mr-2 focus:outline-none focus:border-indigo-500"
+              className="font-bold text-zinc-200 text-sm bg-white/[0.06] border border-white/10 rounded-xl px-2 py-1 flex-1 mr-2 focus:outline-none focus:border-cyan-300/40"
             />
           ) : (
             <div className="flex items-center gap-2 flex-1 group/location">
@@ -148,7 +148,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
               onBlur={handleSaveTime}
               onKeyPress={(e) => e.key === 'Enter' && handleSaveTime()}
               autoFocus
-              className="px-1.5 py-0.5 bg-zinc-800 border border-zinc-600 text-zinc-300 text-[9px] rounded uppercase font-mono focus:outline-none focus:border-indigo-500 w-24"
+              className="px-1.5 py-0.5 bg-white/[0.06] border border-white/10 text-zinc-300 text-[9px] rounded-lg uppercase font-mono focus:outline-none focus:border-cyan-300/40 w-24"
             />
           ) : (
             <span
@@ -156,7 +156,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
                 setEditTime(scene.time);
                 setIsEditingTime(true);
               }}
-              className="px-1.5 py-0.5 bg-zinc-900 text-zinc-500 text-[9px] rounded border border-zinc-800 uppercase font-mono cursor-pointer hover:bg-zinc-800 hover:text-zinc-300 transition-colors"
+              className="px-1.5 py-0.5 bg-cyan-300/10 text-cyan-100/55 text-[9px] rounded-full border border-cyan-200/10 uppercase font-mono cursor-pointer hover:bg-cyan-300/15 hover:text-cyan-100 transition-colors"
             >
               {scene.time}
             </span>
@@ -170,7 +170,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
             onBlur={handleSaveAtmosphere}
             onKeyPress={(e) => e.key === 'Enter' && handleSaveAtmosphere()}
             autoFocus
-            className="text-[10px] text-zinc-300 w-full bg-zinc-800 border border-zinc-600 rounded px-2 py-1 mb-3 focus:outline-none focus:border-indigo-500"
+            className="text-[10px] text-zinc-300 w-full bg-white/[0.06] border border-white/10 rounded-xl px-2 py-1 mb-3 focus:outline-none focus:border-cyan-300/40"
           />
         ) : (
           <p
@@ -184,8 +184,7 @@ const SceneCard: React.FC<SceneCardProps> = ({
           </p>
         )}
 
-        {/* Scene Prompt Section */}
-        <div className="mt-3 pt-3 border-t border-zinc-800">
+        <div className="mt-3 pt-3 border-t border-white/10">
           <PromptEditor
             prompt={scene.visualPrompt || ''}
             onSave={onPromptSave}
@@ -195,9 +194,8 @@ const SceneCard: React.FC<SceneCardProps> = ({
           />
         </div>
 
-        {/* Regenerate and Upload Buttons */}
         {scene.referenceImage && (
-          <div className="mt-3 pt-3 border-t border-zinc-800">
+          <div className="mt-3 pt-3 border-t border-white/10">
             <ImageUploadButton
               variant="separate"
               hasImage={true}
@@ -209,19 +207,18 @@ const SceneCard: React.FC<SceneCardProps> = ({
           </div>
         )}
 
-        <div className="mt-3 pt-3 border-t border-zinc-800">
+        <div className="mt-3 pt-3 border-t border-white/10">
           <button
             onClick={onAddToLibrary}
             disabled={isGenerating}
-            className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full py-2 bg-white/[0.06] hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 hover:border-cyan-300/30 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <FolderPlus className="w-3 h-3" />
             加入资产库
           </button>
         </div>
 
-        {/* Delete Button */}
-        <div className="mt-3 pt-3 border-t border-zinc-800">
+        <div className="mt-3 pt-3 border-t border-white/10">
           <button
             onClick={onDelete}
             disabled={isGenerating}

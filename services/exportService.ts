@@ -1,13 +1,7 @@
 import { ProjectState } from '../types';
 
-/**
- * 下载单个文件并转换为 Blob
- * 支持URL和base64两种格式
- */
 async function downloadFile(urlOrBase64: string): Promise<Blob> {
-  // 检查是否为base64格式
   if (urlOrBase64.startsWith('data:video/')) {
-    // 从base64 data URL中提取数据
     const base64Data = urlOrBase64.split(',')[1];
     const binaryString = atob(base64Data);
     const bytes = new Uint8Array(binaryString.length);
@@ -17,7 +11,6 @@ async function downloadFile(urlOrBase64: string): Promise<Blob> {
     return new Blob([bytes], { type: 'video/mp4' });
   }
   
-  // 原有的URL下载逻辑
   const response = await fetch(urlOrBase64);
   if (!response.ok) {
     throw new Error(`下载失败: ${response.statusText}`);
@@ -25,15 +18,11 @@ async function downloadFile(urlOrBase64: string): Promise<Blob> {
   return await response.blob();
 }
 
-/**
- * 下载所有视频片段并打包为 ZIP 文件
- */
 export async function downloadMasterVideo(
   project: ProjectState,
   onProgress?: (phase: string, progress: number) => void
 ): Promise<void> {
   try {
-    // 1. 筛选已完成的视频片段
     const completedShots = project.shots.filter(shot => shot.interval?.videoUrl);
     
     if (completedShots.length === 0) {
@@ -42,13 +31,11 @@ export async function downloadMasterVideo(
 
     onProgress?.('正在加载 ZIP 库...', 0);
     
-    // 2. 动态导入 JSZip
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
 
     onProgress?.('下载视频片段...', 10);
 
-    // 3. 下载所有视频文件并添加到 ZIP
     for (let i = 0; i < completedShots.length; i++) {
       const shot = completedShots[i];
       const videoUrl = shot.interval!.videoUrl!;
@@ -63,13 +50,11 @@ export async function downloadMasterVideo(
         onProgress?.(`下载中 (${i + 1}/${completedShots.length})...`, progress);
       } catch (err) {
         console.error(`下载视频片段 ${i + 1} 失败:`, err);
-        // 继续下载其他文件，不中断整个流程
       }
     }
 
     onProgress?.('正在生成 ZIP 文件...', 85);
 
-    // 4. 生成 ZIP 文件
     const zipBlob = await zip.generateAsync(
       { type: 'blob' },
       (metadata) => {
@@ -80,7 +65,6 @@ export async function downloadMasterVideo(
 
     onProgress?.('准备下载...', 95);
 
-    // 5. 触发浏览器下载
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement('a');
     a.href = url;
@@ -97,33 +81,23 @@ export async function downloadMasterVideo(
   }
 }
 
-/**
- * 估算合并后的视频总时长（秒）
- * 每个镜头默认10秒
- */
 export function estimateTotalDuration(project: ProjectState): number {
   return project.shots.reduce((acc, shot) => {
     return acc + (shot.interval?.duration || 10);
   }, 0);
 }
 
-/**
- * 创建 ZIP 文件并下载所有源资源
- */
 export async function downloadSourceAssets(
   project: ProjectState,
   onProgress?: (phase: string, progress: number) => void
 ): Promise<void> {
   try {
-    // 动态导入 JSZip
     onProgress?.('正在加载 ZIP 库...', 0);
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
 
-    // 收集所有需要下载的资源
     const assets: { url: string; path: string }[] = [];
 
-    // 1. 角色参考图
     if (project.scriptData?.characters) {
       for (const char of project.scriptData.characters) {
         if (char.referenceImage) {
@@ -132,7 +106,6 @@ export async function downloadSourceAssets(
             path: `characters/${char.name.replace(/[\/\\?%*:|"<>]/g, '_')}_base.jpg`
           });
         }
-        // 角色变体图
         if (char.variations) {
           for (const variation of char.variations) {
             if (variation.referenceImage) {
@@ -146,7 +119,6 @@ export async function downloadSourceAssets(
       }
     }
 
-    // 2. 场景参考图
     if (project.scriptData?.scenes) {
       for (const scene of project.scriptData.scenes) {
         if (scene.referenceImage) {
@@ -158,7 +130,6 @@ export async function downloadSourceAssets(
       }
     }
 
-    // 3. 镜头关键帧图片
     if (project.shots) {
       for (let i = 0; i < project.shots.length; i++) {
         const shot = project.shots[i];
@@ -175,7 +146,6 @@ export async function downloadSourceAssets(
           }
         }
 
-        // 4. 视频片段
         if (shot.interval?.videoUrl) {
           assets.push({
             url: shot.interval.videoUrl,
@@ -191,7 +161,6 @@ export async function downloadSourceAssets(
 
     onProgress?.('正在下载资源...', 5);
 
-    // 下载所有资源并添加到 ZIP
     for (let i = 0; i < assets.length; i++) {
       const asset = assets[i];
       try {
@@ -202,13 +171,11 @@ export async function downloadSourceAssets(
         onProgress?.(`下载中 (${i + 1}/${assets.length})...`, progress);
       } catch (error) {
         console.error(`下载资源失败: ${asset.path}`, error);
-        // 继续下载其他文件，不中断整个流程
       }
     }
 
     onProgress?.('正在生成 ZIP 文件...', 90);
 
-    // 生成 ZIP 文件
     const zipBlob = await zip.generateAsync(
       { type: 'blob' },
       (metadata) => {
@@ -217,7 +184,6 @@ export async function downloadSourceAssets(
       }
     );
 
-    // 触发下载
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement('a');
     a.href = url;

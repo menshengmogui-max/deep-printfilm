@@ -60,18 +60,17 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
   };
 
   return (
-    <div className="bg-[#141414] border border-zinc-800 rounded-xl overflow-hidden flex flex-col group hover:border-zinc-600 transition-all hover:shadow-lg">
+    <div className="bg-white/[0.045] border border-white/10 rounded-2xl overflow-hidden flex flex-col group hover:border-cyan-200/35 transition-all hover:shadow-xl hover:shadow-cyan-950/20 backdrop-blur">
       <div className="flex gap-4 p-4 pb-0">
-        {/* Character Image */}
         <div className="w-48 flex-shrink-0">
           <div 
-            className="aspect-video bg-zinc-900 relative rounded-lg overflow-hidden cursor-pointer"
+            className="aspect-video bg-slate-950/70 relative rounded-2xl overflow-hidden cursor-pointer border border-white/10"
             onClick={() => character.referenceImage && onImageClick(character.referenceImage)}
           >
             {character.referenceImage ? (
               <>
                 <img src={character.referenceImage} alt={character.name} className="w-full h-full object-cover" />
-                <div className="absolute top-1.5 right-1.5 p-1 bg-indigo-500 text-white rounded shadow-lg">
+                <div className="absolute top-1.5 right-1.5 p-1 bg-cyan-300 text-slate-950 rounded-lg shadow-lg shadow-cyan-500/20">
                   <Check className="w-3 h-3" />
                 </div>
               </>
@@ -110,9 +109,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
           </div>
         </div>
 
-        {/* Character Info & Actions */}
         <div className="flex-1 flex flex-col min-w-0 justify-between">
-          {/* Header */}
           <div>
             {isEditingName ? (
               <input
@@ -122,7 +119,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
                 onBlur={handleSaveName}
                 onKeyPress={(e) => e.key === 'Enter' && handleSaveName()}
                 autoFocus
-                className="font-bold text-white text-base mb-1 bg-zinc-800 border border-zinc-600 rounded px-2 py-1 w-full focus:outline-none focus:border-indigo-500"
+                className="font-bold text-white text-base mb-1 bg-white/[0.06] border border-white/10 rounded-xl px-2 py-1 w-full focus:outline-none focus:border-cyan-300/40"
               />
             ) : (
               <div className="flex items-center gap-2 mb-1 group/name">
@@ -147,7 +144,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
                   onBlur={handleSaveGender}
                   onKeyPress={(e) => e.key === 'Enter' && handleSaveGender()}
                   autoFocus
-                  className="text-[10px] text-white font-mono uppercase bg-zinc-800 border border-zinc-600 px-2 py-0.5 rounded focus:outline-none focus:border-indigo-500 w-20"
+                  className="text-[10px] text-white font-mono uppercase bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-lg focus:outline-none focus:border-cyan-300/40 w-20"
                 />
               ) : (
                 <span
@@ -155,7 +152,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
                     setEditGender(character.gender);
                     setIsEditingGender(true);
                   }}
-                  className="text-[10px] text-zinc-500 font-mono uppercase bg-zinc-900 px-2 py-0.5 rounded cursor-pointer hover:bg-zinc-800 hover:text-zinc-300 transition-colors"
+                  className="text-[10px] text-cyan-100/55 font-mono uppercase bg-cyan-300/10 px-2 py-0.5 rounded-full cursor-pointer hover:bg-cyan-300/15 hover:text-cyan-100 transition-colors"
                 >
                   {character.gender}
                 </span>
@@ -168,7 +165,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
                   onBlur={handleSaveAge}
                   onKeyPress={(e) => e.key === 'Enter' && handleSaveAge()}
                   autoFocus
-                  className="text-[10px] text-white bg-zinc-800 border border-zinc-600 px-2 py-0.5 rounded focus:outline-none focus:border-indigo-500 w-20"
+                  className="text-[10px] text-white bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-lg focus:outline-none focus:border-cyan-300/40 w-20"
                 />
               ) : (
                 <span
@@ -182,25 +179,22 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
                 </span>
               )}
               {character.variations && character.variations.length > 0 && (
-                <span className="text-[9px] text-zinc-400 font-mono flex items-center gap-1 bg-zinc-900 px-1.5 py-0.5 rounded">
+                <span className="text-[9px] text-cyan-100/60 font-mono flex items-center gap-1 bg-cyan-300/10 px-1.5 py-0.5 rounded-full border border-cyan-200/10">
                   <Shirt className="w-2.5 h-2.5" /> +{character.variations.length}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Actions Row */}
           <div className="flex flex-col gap-2 mt-2">
-            {/* Manage Wardrobe Button */}
             <button 
               onClick={onOpenWardrobe}
-              className="w-full py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-zinc-800 transition-colors"
+              className="w-full py-1.5 bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-white/10 hover:border-cyan-300/30 transition-colors"
             >
               <Shirt className="w-3 h-3" />
               服装变体
             </button>
 
-            {/* Upload Button */}
             {character.referenceImage && (
               <div className="w-full">
                 <ImageUploadButton
@@ -217,7 +211,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
             <button
               onClick={onReplaceFromLibrary}
               disabled={isGenerating}
-              className="w-full py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-full py-1.5 bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border border-white/10 hover:border-cyan-300/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <FolderPlus className="w-3 h-3" />
               从资产库替换
@@ -226,9 +220,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         </div>
       </div>
 
-      {/* Prompt Section & Generate Button */}
       <div className="p-4 flex-1 flex flex-col">
-        {/* Prompt Section */}
         <div className="flex-1 mb-3">
           <PromptEditor
             prompt={character.visualPrompt || ''}
@@ -238,11 +230,10 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
           />
         </div>
 
-        {/* Quick Generate Button */}
         <button
           onClick={onGenerate}
           disabled={isGenerating || !character.visualPrompt}
-          className="w-full py-2 bg-white hover:bg-zinc-200 text-black rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white"
+          className="w-full py-2 bg-gradient-to-r from-cyan-300 to-sky-400 hover:from-cyan-200 hover:to-sky-300 text-slate-950 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {isGenerating ? (
             <>
@@ -260,13 +251,12 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
         <button
           onClick={onAddToLibrary}
           disabled={isGenerating}
-          className="w-full py-2 mt-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full py-2 mt-2 bg-white/[0.06] hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 hover:border-cyan-300/30 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <FolderPlus className="w-3 h-3" />
           加入资产库
         </button>
 
-        {/* Delete Button */}
         <button
           onClick={onDelete}
           disabled={isGenerating}

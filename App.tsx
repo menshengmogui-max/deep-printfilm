@@ -1,3 +1,4 @@
+// Author: forsearch | Updated: 2026-04-30
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import StageScript from './components/StageScript';
@@ -25,11 +26,9 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showModelConfig, setShowModelConfig] = useState(false);
   
-  // Ref to hold debounce timer
   const saveTimeoutRef = useRef<any>(null);
   const hideStatusTimeoutRef = useRef<any>(null);
 
-  // Detect mobile device on mount
   useEffect(() => {
     const checkMobile = () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
@@ -42,39 +41,30 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Load API Key from localStorage on mount
   useEffect(() => {
     const storedKey = localStorage.getItem('antsk_api_key');
     if (storedKey) {
       setApiKey(storedKey);
       setGlobalApiKey(storedKey);
     }
-    // 检查是否需要显示首次引导（无论有没有 API Key）
     if (shouldShowOnboarding()) {
       setShowOnboarding(true);
     }
   }, []);
 
-  // 处理引导完成
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
   };
 
-  // 处理快速开始选项
-  const handleOnboardingQuickStart = (option: 'script' | 'example') => {
+  const handleOnboardingQuickStart = (_option: 'script' | 'example') => {
     setShowOnboarding(false);
-    // 如果选择"从剧本开始"，可以后续扩展为创建新项目
-    // 如果选择"看看示例项目"，可以后续扩展为打开示例项目
-    console.log('Quick start option:', option);
   };
 
-  // 重新显示引导（供帮助菜单调用）
   const handleShowOnboarding = () => {
     resetOnboarding();
     setShowOnboarding(true);
   };
 
-  // 保存 API Key（从设置或引导中）
   const handleSaveApiKey = (key: string) => {
     if (key) {
       setApiKey(key);
@@ -87,32 +77,28 @@ function App() {
     }
   };
 
-  // 显示模型配置弹窗
   const handleShowModelConfig = () => {
     setShowModelConfig(true);
   };
 
-  // Global error handler to catch API Key errors
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      // Check if error is related to API Key
       if (event.error?.name === 'ApiKeyError' || 
           event.error?.message?.includes('API Key missing') ||
           event.error?.message?.includes('AntSK API Key')) {
         console.warn('🔐 检测到 API Key 错误，请配置 API Key...');
-        setShowModelConfig(true); // 打开模型配置弹窗让用户配置
-        event.preventDefault(); // Prevent default error display
+        setShowModelConfig(true);
+        event.preventDefault();
       }
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      // Check if rejection is related to API Key
       if (event.reason?.name === 'ApiKeyError' ||
           event.reason?.message?.includes('API Key missing') ||
           event.reason?.message?.includes('AntSK API Key')) {
         console.warn('🔐 检测到 API Key 错误，请配置 API Key...');
-        setShowModelConfig(true); // 打开模型配置弹窗让用户配置
-        event.preventDefault(); // Prevent default error display
+        setShowModelConfig(true);
+        event.preventDefault();
       }
     };
 
@@ -125,7 +111,6 @@ function App() {
     };
   }, []);
 
-  // Setup render log callback
   useEffect(() => {
     if (project) {
       setLogCallback((log) => {
@@ -142,9 +127,8 @@ function App() {
     }
     
     return () => clearLogCallback();
-  }, [project?.id]); // Re-setup when project changes
+  }, [project?.id]);
 
-  // Auto-save logic
   useEffect(() => {
     if (!project) return;
 
@@ -160,14 +144,13 @@ function App() {
       } catch (e) {
         console.error("Auto-save failed", e);
       }
-    }, 1000); // Debounce 1s
+    }, 1000);
 
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
   }, [project]);
 
-  // Auto-hide save status after 2 seconds
   useEffect(() => {
     if (saveStatus === 'saved') {
       if (hideStatusTimeoutRef.current) clearTimeout(hideStatusTimeoutRef.current);
@@ -189,7 +172,6 @@ function App() {
     if (!project) return;
     setProject(prev => {
       if (!prev) return null;
-      // 支持函数式更新
       if (typeof updates === 'function') {
         return updates(prev);
       }
@@ -206,7 +188,6 @@ function App() {
   };
 
   const handleExitProject = async () => {
-    // Force save before exiting
     if (project) {
         await saveProjectToDB(project);
     }
@@ -231,13 +212,12 @@ function App() {
     }
   };
 
-  // Mobile Warning Screen
   if (isMobile) {
     return (
       <div className="h-screen bg-[#050505] flex items-center justify-center p-6">
         <div className="max-w-md text-center space-y-6">
           <img src={LOGO_URL} alt="Logo" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">漫剧工场</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">AI 漫剧工场</h1>
           <div className="bg-[#0A0A0A] border border-zinc-800 rounded-xl p-8">
             <p className="text-zinc-400 text-base leading-relaxed mb-4">
               为了获得最佳体验，请使用 PC 端浏览器访问。
@@ -256,7 +236,6 @@ function App() {
     );
   }
 
-  // Dashboard View
   if (!project) {
     return (
        <>
@@ -281,9 +260,8 @@ function App() {
     );
   }
 
-  // Workspace View
   return (
-    <div className="flex h-screen bg-[#121212] font-sans text-gray-100 selection:bg-indigo-500/30">
+    <div className="flex h-screen bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.16),_transparent_34%),linear-gradient(135deg,_#07111f_0%,_#120b1f_48%,_#07130f_100%)] font-sans text-slate-100 selection:bg-cyan-400/25">
       <Sidebar 
         currentStage={project.stage} 
         setStage={setStage} 
@@ -294,11 +272,11 @@ function App() {
       />
       
       <main className="ml-72 flex-1 h-screen overflow-hidden relative">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,_transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,_transparent_1px)] bg-[size:48px_48px] opacity-25" />
         {renderStage()}
         
-        {/* Save Status Indicator */}
         {showSaveStatus && (
-          <div className="absolute top-4 right-6 pointer-events-none flex items-center gap-2 text-xs font-mono text-zinc-400 bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute top-4 right-6 pointer-events-none flex items-center gap-2 text-xs font-mono text-cyan-100 bg-slate-950/60 border border-cyan-300/20 px-3 py-1.5 rounded-full backdrop-blur-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 shadow-lg shadow-cyan-500/10">
              {saveStatus === 'saving' ? (
                <>
                  <Save className="w-3 h-3 animate-pulse" />
@@ -306,7 +284,7 @@ function App() {
                </>
              ) : (
                <>
-                 <CheckCircle className="w-3 h-3 text-green-500" />
+                 <CheckCircle className="w-3 h-3 text-emerald-400" />
                  已保存
                </>
              )}
@@ -314,7 +292,6 @@ function App() {
         )}
       </main>
 
-      {/* Onboarding Modal */}
       {showOnboarding && (
         <Onboarding 
           onComplete={handleOnboardingComplete}
@@ -324,7 +301,6 @@ function App() {
         />
       )}
 
-      {/* Model Config Modal */}
       <ModelConfigModal
         isOpen={showModelConfig}
         onClose={() => setShowModelConfig(false)}

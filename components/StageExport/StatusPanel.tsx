@@ -12,7 +12,6 @@ interface Props {
 const StatusPanel: React.FC<Props> = ({ project, progress, estimatedDuration }) => {
   return (
     <div className={STYLES.statusPanel.container}>
-      {/* Background Decoration */}
       <div className={STYLES.statusPanel.decoration.top}></div>
       <div className={STYLES.statusPanel.decoration.bottom}></div>
 
@@ -22,7 +21,7 @@ const StatusPanel: React.FC<Props> = ({ project, progress, estimatedDuration }) 
             <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
               {project.scriptData?.title || '未命名项目'}
             </h3>
-            <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-zinc-400 text-[10px] rounded uppercase font-mono tracking-wider">
+            <span className="px-2 py-0.5 bg-cyan-300/10 border border-cyan-200/15 text-cyan-100/65 text-[10px] rounded-full uppercase font-mono tracking-wider">
               Master Sequence
             </span>
           </div>
@@ -31,12 +30,12 @@ const StatusPanel: React.FC<Props> = ({ project, progress, estimatedDuration }) 
               <span className={STYLES.statusPanel.statLabel}>Shots</span>
               <span className={STYLES.statusPanel.statValue}>{project.shots.length}</span>
             </div>
-            <div className="w-px h-6 bg-zinc-800"></div>
+            <div className="w-px h-6 bg-white/10"></div>
             <div className={STYLES.statusPanel.stat}>
               <span className={STYLES.statusPanel.statLabel}>Est. Duration</span>
               <span className={STYLES.statusPanel.statValue}>~{estimatedDuration}s</span>
             </div>
-            <div className="w-px h-6 bg-zinc-800"></div>
+            <div className="w-px h-6 bg-white/10"></div>
             <div className={STYLES.statusPanel.stat}>
               <span className={STYLES.statusPanel.statLabel}>Target</span>
               <span className={STYLES.statusPanel.statValue}>{project.targetDuration}</span>
@@ -46,7 +45,7 @@ const StatusPanel: React.FC<Props> = ({ project, progress, estimatedDuration }) 
         
         <div className={STYLES.statusPanel.progressBadge}>
           <div className="flex items-baseline justify-end gap-1 mb-1">
-            <span className="text-3xl font-mono font-bold text-indigo-400">{progress}</span>
+            <span className="text-3xl font-mono font-bold text-cyan-300">{progress}</span>
             <span className="text-sm text-zinc-500">%</span>
           </div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-widest flex items-center justify-end gap-2">

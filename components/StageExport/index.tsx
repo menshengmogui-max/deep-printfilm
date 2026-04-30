@@ -1,3 +1,4 @@
+// Author: forsearch | Updated: 2026-04-30
 import React, { useState, useRef, useEffect } from 'react';
 import { Film } from 'lucide-react';
 import { ProjectState } from '../../types';
@@ -28,27 +29,22 @@ const StageExport: React.FC<Props> = ({ project }) => {
   const progress = calculateProgress(project);
   const estimatedDuration = calculateEstimatedDuration(project);
 
-  // Download state
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadPhase, setDownloadPhase] = useState('');
   const [downloadProgress, setDownloadProgress] = useState(0);
 
-  // Source Assets Download state
   const [isDownloadingAssets, setIsDownloadingAssets] = useState(false);
   const [assetsPhase, setAssetsPhase] = useState('');
   const [assetsProgress, setAssetsProgress] = useState(0);
 
-  // Render Logs Modal state
   const [showLogsModal, setShowLogsModal] = useState(false);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
-  // Video Preview Player state
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [currentShotIndex, setCurrentShotIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Auto-play when shot changes
   useEffect(() => {
     const video = videoRef.current;
     if (video && showVideoPlayer) {
@@ -65,7 +61,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
     }
   }, [currentShotIndex, showVideoPlayer]);
 
-  // Video player handlers
   const handlePlayPause = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -106,7 +101,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
     }
   };
 
-  // Handle master video download
   const handleDownloadMaster = async () => {
     if (isDownloading || progress < 100) return;
     
@@ -133,7 +127,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
     }
   };
 
-  // Handle source assets download
   const handleDownloadAssets = async () => {
     if (isDownloadingAssets) return;
     
@@ -167,12 +160,11 @@ const StageExport: React.FC<Props> = ({ project }) => {
 
   return (
     <div className={STYLES.container}>
-      {/* Header */}
       <div className={STYLES.header.container}>
         <div className="flex items-center gap-4">
           <h2 className={STYLES.header.title}>
-            <Film className="w-5 h-5 text-indigo-500" />
-            成片与导出
+            <Film className="w-5 h-5 text-cyan-300" />
+            制片导出
             <span className={STYLES.header.subtitle}>Rendering & Export</span>
           </h2>
         </div>
@@ -183,11 +175,9 @@ const StageExport: React.FC<Props> = ({ project }) => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8 md:p-12">
         <div className="max-w-6xl mx-auto space-y-8">
           
-          {/* Main Status Panel */}
           <div>
             <StatusPanel 
               project={project}
@@ -195,10 +185,8 @@ const StageExport: React.FC<Props> = ({ project }) => {
               estimatedDuration={estimatedDuration}
             />
             
-            {/* Timeline Visualizer */}
             <TimelineVisualizer shots={project.shots} />
             
-            {/* Action Buttons */}
             <ActionButtons
               completedShotsCount={completedShots.length}
               totalShots={project.shots.length}
@@ -213,7 +201,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
             />
           </div>
 
-          {/* Secondary Options */}
           <SecondaryOptions
             assetsDownloadState={{
               isDownloading: isDownloadingAssets,
@@ -227,7 +214,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
         </div>
       </div>
 
-      {/* Video Preview Player Modal */}
       {showVideoPlayer && completedShots.length > 0 && (
         <VideoPlayerModal
           completedShots={completedShots}
@@ -243,7 +229,6 @@ const StageExport: React.FC<Props> = ({ project }) => {
         />
       )}
 
-      {/* Render Logs Modal */}
       {showLogsModal && (
         <RenderLogsModal
           logs={collectRenderLogs(project)}

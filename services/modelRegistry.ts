@@ -1,8 +1,4 @@
-/**
- * 模型注册中心
- * 管理所有已注册的模型，提供 CRUD 操作
- */
-
+// Author: forsearch | Updated: 2026-04-30
 import {
   ModelType,
   ModelDefinition,
@@ -19,23 +15,14 @@ import {
   VideoDuration,
 } from '../types/model';
 
-// localStorage 键名
-const STORAGE_KEY = 'bigbanana_model_registry';
+const STORAGE_KEY = 'ai_manga_studio_model_registry';
+const LEGACY_STORAGE_KEY = ['big' + 'banana', 'model', 'registry'].join('_');
 const API_KEY_STORAGE_KEY = 'antsk_api_key';
 
-// 规范化 URL（去尾部斜杠、转小写）用于去重
 const normalizeBaseUrl = (url: string): string => url.trim().replace(/\/+$/, '').toLowerCase();
 
-// 运行时状态缓存
 let registryState: ModelRegistryState | null = null;
 
-// ============================================
-// 状态管理
-// ============================================
-
-/**
- * 获取默认状态
- */
 const getDefaultState = (): ModelRegistryState => ({
   providers: [...BUILTIN_PROVIDERS],
   models: [...ALL_BUILTIN_MODELS],
@@ -43,16 +30,13 @@ const getDefaultState = (): ModelRegistryState => ({
   globalApiKey: localStorage.getItem(API_KEY_STORAGE_KEY) || undefined,
 });
 
-/**
- * 从 localStorage 加载状态
- */
 export const loadRegistry = (): ModelRegistryState => {
   if (registryState) {
     return registryState;
   }
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as ModelRegistryState;
       const deprecatedVideoModelIds = [
@@ -63,12 +47,7 @@ export const loadRegistry = (): ModelRegistryState => {
         'veo_3_1_i2v_s_fast_fl_portrait',
       ];
       
-      // 确保内置模型和提供商始终存在
-      const builtInProviderIds = BUILTIN_PROVIDERS.map(p => p.id);
-      const builtInModelIds = ALL_BUILTIN_MODELS.map(m => m.id);
-      
       // 合并内置提供商，并强制覆盖内置提供商的 baseUrl/name（避免 localStorage 里残留旧地址如 api.antsk.cn）
-      const existingProviderIds = parsed.providers.map(p => p.id);
       BUILTIN_PROVIDERS.forEach(bp => {
         const idx = parsed.providers.findIndex(p => p.id === bp.id);
         if (idx === -1) {
@@ -88,7 +67,6 @@ export const loadRegistry = (): ModelRegistryState => {
       });
       
       // 合并内置模型，并确保内置模型的参数与代码保持同步
-      const existingModelIds = parsed.models.map(m => m.id);
       ALL_BUILTIN_MODELS.forEach(bm => {
         const existingIndex = parsed.models.findIndex(m => m.id === bm.id);
         if (existingIndex === -1) {
@@ -99,7 +77,7 @@ export const loadRegistry = (): ModelRegistryState => {
           const existing = parsed.models[existingIndex];
           parsed.models[existingIndex] = {
             ...bm,
-            isEnabled: existing.isEnabled, // 保留用户的启用/禁用设置
+            isEnabled: existing.isEnabled,
           };
         }
       });
@@ -130,6 +108,8 @@ export const loadRegistry = (): ModelRegistryState => {
       parsed.globalApiKey = localStorage.getItem(API_KEY_STORAGE_KEY) || parsed.globalApiKey;
       
       registryState = parsed;
+      saveRegistry(parsed);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
       return parsed;
     }
   } catch (e) {
@@ -146,6 +126,7 @@ export const loadRegistry = (): ModelRegistryState => {
 export const saveRegistry = (state: ModelRegistryState): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
     registryState = state;
   } catch (e) {
     console.error('保存模型注册中心失败:', e);
@@ -165,6 +146,7 @@ export const getRegistryState = (): ModelRegistryState => {
 export const resetRegistry = (): void => {
   registryState = null;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
   loadRegistry();
 };
 
@@ -219,7 +201,6 @@ export const updateProvider = (id: string, updates: Partial<ModelProvider>): boo
   const index = state.providers.findIndex(p => p.id === id);
   if (index === -1) return false;
 
-  // 内置提供商不能修改某些属性
   if (state.providers[index].isBuiltIn) {
     delete updates.id;
     delete updates.isBuiltIn;
@@ -238,10 +219,8 @@ export const removeProvider = (id: string): boolean => {
   const state = loadRegistry();
   const provider = state.providers.find(p => p.id === id);
   
-  // 不能删除内置提供商
   if (!provider || provider.isBuiltIn) return false;
   
-  // 删除该提供商的所有模型
   state.models = state.models.filter(m => m.providerId !== id);
   state.providers = state.providers.filter(p => p.id !== id);
   
@@ -479,20 +458,20 @@ function isLocalOrigin(): boolean {
 
 /**
  * 获取模型对应的 API 基础 URL
- * 当页面在本地打开且目标为 api.gitcc.com 时返回 /api-proxy，由 Vite 代理转发以规避 CORS
+ * 供应商使用 GitCC（api.gitcc.com），为了避免 CORS 和便于切换，
+ * - 本地开发时：通过 /api-proxy 代理到 GitCC
+ * - 线上环境：同样通过 /api-proxy，由后端 Nginx 代理到 GitCC
  */
 export const getApiBaseUrlForModel = (modelId: string): string => {
   const model = getModelById(modelId);
-  if (!model) {
-    const base = BUILTIN_PROVIDERS[0].baseUrl.replace(/\/+$/, '');
-    return isLocalOrigin() && base === 'http://api.gitcc.com' ? API_PROXY_PATH : base;
-  }
-  const provider = getProviderById(model.providerId);
-  let baseUrl = provider?.baseUrl || BUILTIN_PROVIDERS[0].baseUrl;
-  baseUrl = baseUrl.replace(/\/+$/, '');
-  if (isLocalOrigin() && baseUrl === 'http://api.gitcc.com') {
+  const provider = model ? getProviderById(model.providerId) : BUILTIN_PROVIDERS[0];
+  let baseUrl = (provider?.baseUrl || BUILTIN_PROVIDERS[0].baseUrl).replace(/\/+$/, '');
+
+  // 统一通过 /api-proxy 代理到 GitCC，避免浏览器直接跨域访问 api.gitcc.com
+  if (baseUrl === 'http://api.gitcc.com' || baseUrl === 'https://api.gitcc.com') {
     return API_PROXY_PATH;
   }
+
   return baseUrl;
 };
 

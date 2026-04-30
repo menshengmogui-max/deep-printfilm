@@ -57,8 +57,8 @@ export const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({
           className={`
             flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-all
             ${value === option.value
-              ? 'bg-indigo-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+              ? 'bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-500/20'
+              : 'bg-white/[0.06] text-slate-400 hover:bg-white/10 hover:text-cyan-100 border border-white/10'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
@@ -100,8 +100,8 @@ export const VideoDurationSelector: React.FC<VideoDurationSelectorProps> = ({
           className={`
             px-3 py-1.5 rounded-md text-xs transition-all
             ${value === d
-              ? 'bg-indigo-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+              ? 'bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-500/20'
+              : 'bg-white/[0.06] text-slate-400 hover:bg-white/10 hover:text-cyan-100 border border-white/10'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
@@ -178,8 +178,8 @@ export const VideoSettingsPanel: React.FC<VideoSettingsPanelProps> = ({
                 className={`
                   px-3 py-1.5 rounded-md text-xs transition-all
                   ${duration === d
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                    ? 'bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-500/20'
+                    : 'bg-white/[0.06] text-slate-400 hover:bg-white/10 hover:text-cyan-100 border border-white/10'
                   }
                   ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}

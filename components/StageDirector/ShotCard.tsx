@@ -14,18 +14,14 @@ const ShotCard: React.FC<ShotCardProps> = ({ shot, index, isActive, onClick }) =
   const hasImage = !!sKf?.imageUrl;
   const hasVideo = !!shot.interval?.videoUrl;
 
-  // 从shot.id中提取显示编号
-  // 例如：shot-1 → "SHOT 001", shot-1-1 → "SHOT 001-1", shot-1-2 → "SHOT 001-2"
+  // shot-1 / shot-1-1 需要映射为卡片上的主镜头/子镜头编号。
   const getShotDisplayNumber = () => {
-    const idParts = shot.id.split('-').slice(1); // 移除 "shot" 前缀
+    const idParts = shot.id.split('-').slice(1);
     if (idParts.length === 1) {
-      // 主镜头：shot-1 → "SHOT 001"
       return `SHOT ${String(idParts[0]).padStart(3, '0')}`;
     } else if (idParts.length === 2) {
-      // 子镜头：shot-1-1 → "SHOT 001-1"
       return `SHOT ${String(idParts[0]).padStart(3, '0')}-${idParts[1]}`;
     } else {
-      // 降级方案：使用index
       return `SHOT ${String(index + 1).padStart(3, '0')}`;
     }
   };
@@ -34,22 +30,20 @@ const ShotCard: React.FC<ShotCardProps> = ({ shot, index, isActive, onClick }) =
     <div 
       onClick={onClick}
       className={`
-        group relative flex flex-col bg-[#1A1A1A] border rounded-xl overflow-hidden cursor-pointer transition-all duration-200
-        ${isActive ? 'border-indigo-500 ring-1 ring-indigo-500/50 shadow-xl scale-[0.98]' : 'border-zinc-800 hover:border-zinc-600 hover:shadow-lg'}
+        group relative flex flex-col bg-white/[0.045] border rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 backdrop-blur
+        ${isActive ? 'border-cyan-300/60 ring-1 ring-cyan-300/35 shadow-xl shadow-cyan-950/25 scale-[0.98]' : 'border-white/10 hover:border-cyan-200/35 hover:shadow-lg hover:shadow-cyan-950/15'}
       `}
     >
-      {/* Header */}
-      <div className="px-3 py-2 bg-[#151515] border-b border-zinc-800 flex justify-between items-center">
-        <span className={`font-mono text-[10px] font-bold ${isActive ? 'text-indigo-400' : 'text-zinc-500'}`}>
+      <div className="px-3 py-2 bg-slate-950/45 border-b border-white/10 flex justify-between items-center">
+        <span className={`font-mono text-[10px] font-bold ${isActive ? 'text-cyan-200' : 'text-slate-500'}`}>
           {getShotDisplayNumber()}
         </span>
-        <span className="text-[9px] px-1.5 py-0.5 bg-zinc-800 text-zinc-400 rounded uppercase">
+        <span className="text-[9px] px-1.5 py-0.5 bg-cyan-300/10 text-cyan-100/60 rounded-full uppercase">
           {shot.cameraMovement}
         </span>
       </div>
 
-      {/* Thumbnail */}
-      <div className="aspect-video bg-zinc-900 relative overflow-hidden">
+      <div className="aspect-video bg-slate-950/70 relative overflow-hidden">
         {hasImage ? (
           <img 
             src={sKf!.imageUrl} 
@@ -62,7 +56,6 @@ const ShotCard: React.FC<ShotCardProps> = ({ shot, index, isActive, onClick }) =
           </div>
         )}
         
-        {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {hasVideo && (
             <div className="px-2 py-1 bg-green-500 text-white rounded-full text-[9px] font-bold uppercase flex items-center gap-1 shadow-lg">
@@ -79,9 +72,8 @@ const ShotCard: React.FC<ShotCardProps> = ({ shot, index, isActive, onClick }) =
         )}
       </div>
 
-      {/* Footer */}
       <div className="p-3">
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
           {shot.actionSummary}
         </p>
       </div>

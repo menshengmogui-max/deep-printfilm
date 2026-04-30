@@ -70,9 +70,9 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
   return (
     <div className="space-y-6">
       {/* 折扣广告卡片 */}
-      <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/30 rounded-xl p-5">
+      <div className="bg-gradient-to-r from-cyan-300/10 via-sky-400/10 to-fuchsia-400/10 border border-cyan-200/20 rounded-2xl p-5">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-300 to-sky-400 flex items-center justify-center flex-shrink-0">
             <Gift className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
@@ -89,7 +89,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
                 href="http://api.gitcc.com" 
                 target="_blank" 
                 rel="noreferrer"
-                className="px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-cyan-300 text-slate-950 text-xs font-bold rounded-xl hover:bg-cyan-200 transition-colors inline-flex items-center gap-1.5"
               >
                 立即购买
                 <ExternalLink className="w-3 h-3" />
@@ -103,7 +103,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
       {/* API Key 配置 */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Key className="w-4 h-4 text-indigo-400" />
+          <Key className="w-4 h-4 text-cyan-300" />
           <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
             全局 API Key
           </label>
@@ -119,7 +119,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
               setVerifyMessage('');
             }}
             placeholder="输入你的 API Key..."
-            className="w-full bg-[#141414] border border-zinc-800 text-white px-4 py-3 text-sm rounded-lg focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-900 transition-all font-mono placeholder:text-zinc-700"
+            className="w-full bg-white/[0.06] border border-white/10 text-white px-4 py-3 text-sm rounded-xl focus:border-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/10 transition-all font-mono placeholder:text-slate-500"
             disabled={isVerifying}
           />
           
@@ -147,7 +147,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
             {getGlobalApiKey() && (
               <button
                 onClick={handleClearKey}
-                className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-lg border border-zinc-800"
+                className="flex-1 py-3 bg-white/[0.06] hover:bg-white/10 text-zinc-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-xl border border-white/10"
               >
                 清除 Key
               </button>
@@ -155,7 +155,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
             <button
               onClick={handleVerifyAndSave}
               disabled={isVerifying || !apiKey.trim()}
-              className="flex-1 py-3 bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-cyan-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isVerifying ? (
                 <>
@@ -171,7 +171,7 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
       </div>
 
       {/* 提示 */}
-      <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
+      <div className="p-4 bg-white/[0.045] rounded-2xl border border-white/10">
         <h4 className="text-xs font-bold text-zinc-400 mb-2">配置说明</h4>
         <ul className="text-[10px] text-zinc-600 space-y-1 list-disc list-inside">
           <li>全局 API Key 用于所有 GitCC API 内置模型的调用</li>

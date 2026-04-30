@@ -6,7 +6,7 @@ interface KeyframeEditorProps {
   startKeyframe?: Keyframe;
   endKeyframe?: Keyframe;
   canCopyPrevious: boolean;
-  canCopyNext: boolean; // 是否可以复制下一镜头的首帧（需要有下一个镜头且已生成首帧）
+  canCopyNext: boolean;
   isAIOptimizing?: boolean;
   useAIEnhancement: boolean;
   onToggleAIEnhancement: () => void;
@@ -16,7 +16,7 @@ interface KeyframeEditorProps {
   onOptimizeWithAI: (type: 'start' | 'end') => void;
   onOptimizeBothWithAI: () => void;
   onCopyPrevious: () => void;
-  onCopyNext: () => void; // 复制下一镜头首帧到当前尾帧
+  onCopyNext: () => void;
   onImageClick: (url: string, title: string) => void;
 }
 
@@ -55,7 +55,7 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
             <button
               onClick={() => onOptimizeWithAI(type)}
               disabled={isAIOptimizing}
-              className="p-1 text-indigo-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1 text-cyan-300 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="AI优化提示词"
             >
               {isAIOptimizing ? (
@@ -76,7 +76,7 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
           </div>
         </div>
         
-        <div className="aspect-video bg-black rounded-lg border border-zinc-800 overflow-hidden relative group">
+        <div className="aspect-video bg-slate-950/70 rounded-2xl border border-white/10 overflow-hidden relative group">
           {keyframe?.imageUrl ? (
             <>
               <img
@@ -93,7 +93,7 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
             <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-700 p-2">
               {isGenerating ? (
                 <>
-                  <Loader2 className="w-6 h-6 animate-spin mb-2 text-indigo-500" />
+                  <Loader2 className="w-6 h-6 animate-spin mb-2 text-cyan-300" />
                   <span className="text-[10px] text-zinc-500">生成中...</span>
                 </>
               ) : hasFailed ? (
@@ -114,20 +114,19 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-2">
           {!isGenerating && (
             <>
               <button
                 onClick={() => onGenerateKeyframe(type)}
                 disabled={isGenerating}
-                className="flex-1 py-1.5 bg-white hover:bg-zinc-200 text-black rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                className="flex-1 py-1.5 bg-cyan-300 hover:bg-cyan-200 text-slate-950 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
               >
                 {keyframe?.imageUrl ? '重新生成' : '生成'}
               </button>
               <button
                 onClick={() => onUploadKeyframe(type)}
-                className="flex-1 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
+                className="flex-1 py-1.5 bg-white/10 hover:bg-white/15 text-zinc-300 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
               >
                 <Upload className="w-3 h-3" />
                 上传
@@ -136,22 +135,20 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
           )}
         </div>
 
-        {/* Copy Previous Button for Start Frame */}
         {type === 'start' && canCopyPrevious && !keyframe?.imageUrl && (
           <button
             onClick={onCopyPrevious}
-            className="w-full py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 border border-zinc-700"
+            className="w-full py-1.5 bg-white/[0.06] hover:bg-white/10 text-zinc-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 border border-white/10"
           >
             <ArrowRight className="w-3 h-3" />
             复制上一镜头尾帧
           </button>
         )}
 
-        {/* Copy Next Button for End Frame */}
         {type === 'end' && canCopyNext && !keyframe?.imageUrl && (
           <button
             onClick={onCopyNext}
-            className="w-full py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 border border-zinc-700"
+            className="w-full py-1.5 bg-white/[0.06] hover:bg-white/10 text-zinc-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1 border border-white/10"
           >
             <ArrowLeft className="w-3 h-3" />
             复制下一镜头首帧
@@ -163,12 +160,11 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-white/10 pb-2">
         <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex-1">
           视觉制作 (Visual Production)
         </span>
         
-        {/* AI 增强开关 */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-zinc-500">
             AI增强提示词
@@ -176,7 +172,7 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
           <button
             onClick={onToggleAIEnhancement}
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              useAIEnhancement ? 'bg-indigo-500' : 'bg-zinc-700'
+              useAIEnhancement ? 'bg-cyan-300' : 'bg-slate-700'
             }`}
             title={useAIEnhancement ? '关闭AI增强：使用基础提示词快速生成' : '开启AI增强：自动扩展为专业电影级描述'}
           >
@@ -188,11 +184,10 @@ const KeyframeEditor: React.FC<KeyframeEditorProps> = ({
           </button>
         </div>
         
-        {/* 一次性优化两帧按钮 */}
         <button
           onClick={onOptimizeBothWithAI}
           disabled={isAIOptimizing}
-          className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-black rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 bg-cyan-300 hover:bg-cyan-200 text-slate-950 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           title="AI一次性优化起始帧和结束帧（推荐）"
         >
           {isAIOptimizing ? (

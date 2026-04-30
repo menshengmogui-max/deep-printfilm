@@ -112,10 +112,10 @@ const ModelList: React.FC<ModelListProps> = ({ type, onRefresh }) => {
       </div>
 
       {/* 当前激活模型信息 */}
-      <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-3">
+      <div className="bg-cyan-300/10 border border-cyan-200/20 rounded-2xl p-3">
         <div className="flex items-center gap-2 mb-1">
-          <CheckCircle className="w-4 h-4 text-indigo-400" />
-          <span className="text-xs font-bold text-indigo-300">当前使用</span>
+          <CheckCircle className="w-4 h-4 text-cyan-300" />
+          <span className="text-xs font-bold text-cyan-200">当前使用</span>
         </div>
         {(() => {
           const activeModel = models.find(m => m.id === activeModelId);
@@ -134,7 +134,7 @@ const ModelList: React.FC<ModelListProps> = ({ type, onRefresh }) => {
       </div>
 
       {/* 提示信息 */}
-      <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 flex items-start gap-2">
+      <div className="bg-white/[0.045] border border-white/10 rounded-2xl p-3 flex items-start gap-2">
         <Info className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
         <p className="text-[10px] text-zinc-500 leading-relaxed">
           点击「使用此模型」按钮可切换激活模型。自定义模型配置了独立提供商后，API 请求会发送到对应的地址。

@@ -44,7 +44,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
         {!isEditing && (
           <button
             onClick={handleStartEdit}
-            className="text-zinc-500 hover:text-white transition-colors p-1 hover:bg-zinc-800 rounded"
+            className="text-zinc-500 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-xl"
             title="编辑提示词"
           >
             <Edit3 className="w-3 h-3" />
@@ -57,28 +57,28 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
           <textarea
             value={editedPrompt}
             onChange={(e) => setEditedPrompt(e.target.value)}
-            className={`flex-1 bg-black border border-indigo-500 text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-400 resize-none font-mono leading-relaxed min-h-[100px] ${maxHeight}`}
+            className={`flex-1 bg-white/[0.06] border border-cyan-300/30 text-white px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-300/10 resize-none font-mono leading-relaxed min-h-[100px] ${maxHeight}`}
             placeholder={placeholder}
             autoFocus
           />
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 py-1.5 bg-cyan-300 hover:bg-cyan-200 text-slate-950 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
             >
               <Save className="w-3 h-3" />
               保存
             </button>
             <button
               onClick={handleCancel}
-              className="flex-1 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+              className="flex-1 py-1.5 bg-white/10 hover:bg-white/15 text-zinc-300 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors"
             >
               取消
             </button>
           </div>
         </div>
       ) : (
-        <div className={`flex-1 bg-zinc-900/50 border border-zinc-800 rounded-lg p-3 overflow-y-auto ${maxHeight}`}>
+        <div className={`flex-1 bg-slate-950/45 border border-white/10 rounded-xl p-3 overflow-y-auto ${maxHeight}`}>
           {prompt ? (
             <p className="text-[11px] text-zinc-400 leading-relaxed font-mono">
               {prompt}

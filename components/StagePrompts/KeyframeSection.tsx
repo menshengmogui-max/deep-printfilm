@@ -61,7 +61,7 @@ const KeyframeSection: React.FC<Props> = ({
               </p>
             </div>
 
-            <div className="space-y-3 pl-4 border-l-2 border-indigo-500/30">
+            <div className="space-y-3 pl-4 border-l-2 border-cyan-300/30">
               {shot.keyframes.map((keyframe) => (
                 <div key={keyframe.id} className={STYLES.card.nested}>
                   <div className="flex items-center justify-between mb-2">
@@ -100,7 +100,7 @@ const KeyframeSection: React.FC<Props> = ({
                   )}
 
                   {keyframe.imageUrl && (
-                    <div className="mt-2 rounded overflow-hidden border border-zinc-800">
+                    <div className="mt-2 rounded-xl overflow-hidden border border-white/10">
                       <img 
                         src={keyframe.imageUrl} 
                         alt={`关键帧 ${keyframe.type}`}
@@ -111,9 +111,8 @@ const KeyframeSection: React.FC<Props> = ({
                 </div>
               ))}
 
-              {/* Video Prompt Section */}
               {shot.interval && (
-                <div className="mt-3 pt-3 border-t border-zinc-800/50">
+                <div className="mt-3 pt-3 border-t border-white/10">
                   <div className="bg-purple-950/30 border border-purple-500/30 rounded p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">

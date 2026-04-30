@@ -48,18 +48,15 @@ const ConfigPanel: React.FC<Props> = ({
   onAnalyze
 }) => {
   return (
-    <div className="w-96 border-r border-zinc-800 flex flex-col bg-[#0A0A0A]">
-      {/* Header */}
-      <div className="h-14 px-5 border-b border-zinc-800 flex items-center justify-between shrink-0">
+    <div className="w-96 border-r border-cyan-300/10 flex flex-col bg-slate-950/60 backdrop-blur-2xl">
+      <div className="h-16 px-5 border-b border-white/10 flex items-center justify-between shrink-0 bg-white/[0.03]">
         <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-zinc-400" />
+          <BookOpen className="w-4 h-4 text-cyan-300" />
           项目配置
         </h2>
       </div>
 
-      {/* Config Form */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-        {/* Title */}
         <div className="space-y-2">
           <label className={STYLES.label}>项目标题</label>
           <input 
@@ -71,7 +68,6 @@ const ConfigPanel: React.FC<Props> = ({
           />
         </div>
 
-        {/* Language */}
         <div className="space-y-2">
           <label className={STYLES.label}>输出语言</label>
           <div className="relative">
@@ -90,7 +86,6 @@ const ConfigPanel: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Duration */}
         <OptionSelector
           label="目标时长"
           options={DURATION_OPTIONS}
@@ -102,7 +97,6 @@ const ConfigPanel: React.FC<Props> = ({
           gridCols={2}
         />
 
-        {/* Model */}
         <div className="space-y-2">
           <ModelSelector
             type="chat"
@@ -111,12 +105,11 @@ const ConfigPanel: React.FC<Props> = ({
             disabled={isProcessing}
             label="分镜生成模型"
           />
-          <p className="text-[9px] text-zinc-600">
-            在 <span className="text-indigo-400">模型配置</span> 中可添加更多模型
+          <p className="text-[9px] text-slate-500">
+            在 <span className="text-cyan-300">模型配置</span> 中可添加更多模型
           </p>
         </div>
 
-        {/* Visual Style */}
         <OptionSelector
           label="视觉风格"
           icon={<Wand2 className="w-3 h-3" />}
@@ -130,8 +123,7 @@ const ConfigPanel: React.FC<Props> = ({
         />
       </div>
 
-      {/* Action Button */}
-      <div className="p-6 border-t border-zinc-800 bg-[#0A0A0A]">
+      <div className="p-6 border-t border-white/10 bg-slate-950/70">
         <button
           onClick={onAnalyze}
           disabled={isProcessing}

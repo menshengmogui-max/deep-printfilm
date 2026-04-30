@@ -1,13 +1,18 @@
+// Author: forsearch | Updated: 2026-04-30
 import { ProjectState, AssetLibraryItem } from '../types';
 
-const DB_NAME = 'BigBananaDB';
+const DB_NAME = 'AiMangaStudioDB';
+const LEGACY_DB_NAME = ['Big', 'Banana', 'DB'].join('');
+const DB_MIGRATION_KEY = 'ai_manga_studio_db_migrated';
 const DB_VERSION = 2;
 const STORE_NAME = 'projects';
 const ASSET_STORE_NAME = 'assetLibrary';
 
-const openDB = (): Promise<IDBDatabase> => {
+let migrationPromise: Promise<void> | null = null;
+
+const openNamedDB = (dbName: string): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(dbName, DB_VERSION);
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
     request.onupgradeneeded = (event) => {
@@ -20,6 +25,66 @@ const openDB = (): Promise<IDBDatabase> => {
       }
     };
   });
+};
+
+const readStoreItems = <T>(db: IDBDatabase, storeName: string): Promise<T[]> => {
+  if (!db.objectStoreNames.contains(storeName)) {
+    return Promise.resolve([]);
+  }
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const request = store.getAll();
+    request.onsuccess = () => resolve((request.result as T[]) || []);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const writeStoreItems = <T>(db: IDBDatabase, storeName: string, items: T[]): Promise<void> => {
+  if (items.length === 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    items.forEach((item) => store.put(item));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+const migrateLegacyDB = async (): Promise<void> => {
+  if (localStorage.getItem(DB_MIGRATION_KEY) === 'true') {
+    return;
+  }
+
+  let legacyDb: IDBDatabase | null = null;
+  let targetDb: IDBDatabase | null = null;
+
+  try {
+    legacyDb = await openNamedDB(LEGACY_DB_NAME);
+    targetDb = await openNamedDB(DB_NAME);
+
+    const projects = await readStoreItems<ProjectState>(legacyDb, STORE_NAME);
+    const assets = await readStoreItems<AssetLibraryItem>(legacyDb, ASSET_STORE_NAME);
+
+    await writeStoreItems(targetDb, STORE_NAME, projects);
+    await writeStoreItems(targetDb, ASSET_STORE_NAME, assets);
+    localStorage.setItem(DB_MIGRATION_KEY, 'true');
+  } catch (error) {
+    console.warn('本地项目数据迁移失败，将使用新的数据库继续运行。', error);
+  } finally {
+    legacyDb?.close();
+    targetDb?.close();
+  }
+};
+
+const openDB = async (): Promise<IDBDatabase> => {
+  migrationPromise ??= migrateLegacyDB();
+  await migrationPromise;
+  return openNamedDB(DB_NAME);
 };
 
 export const saveProjectToDB = async (project: ProjectState): Promise<void> => {
@@ -43,7 +108,7 @@ export const loadProjectFromDB = async (id: string): Promise<ProjectState> => {
     request.onsuccess = () => {
       if (request.result) {
         const project = request.result;
-        // Migration: ensure renderLogs exists for old projects
+        // 舊專案可能沒有 renderLogs，需要補齊以免後續渲染日誌寫入失敗。
         if (!project.renderLogs) {
           project.renderLogs = [];
         }
@@ -63,17 +128,12 @@ export const getAllProjectsMetadata = async (): Promise<ProjectState[]> => {
     const request = store.getAll(); 
     request.onsuccess = () => {
        const projects = request.result as ProjectState[];
-       // Sort by last modified descending
        projects.sort((a, b) => b.lastModified - a.lastModified);
        resolve(projects);
     };
     request.onerror = () => reject(request.error);
   });
 };
-
-// =========================
-// Asset Library Operations
-// =========================
 
 export const saveAssetToLibrary = async (item: AssetLibraryItem): Promise<void> => {
   const db = await openDB();
@@ -112,108 +172,31 @@ export const deleteAssetFromLibrary = async (id: string): Promise<void> => {
   });
 };
 
-/**
- * 从IndexedDB中删除项目及其所有关联资源
- * 由于所有媒体资源（图片、视频）都以Base64格式存储在项目对象内部，
- * 删除项目记录时会自动清理所有相关资源：
- * - 角色参考图 (Character.referenceImage)
- * - 角色变体参考图 (CharacterVariation.referenceImage)
- * - 场景参考图 (Scene.referenceImage)
- * - 关键帧图像 (Keyframe.imageUrl)
- * - 视频片段 (VideoInterval.videoUrl)
- * - 渲染日志 (RenderLog[])
- * @param id - 项目ID
- */
 export const deleteProjectFromDB = async (id: string): Promise<void> => {
-  console.log(`🗑️ 开始删除项目: ${id}`);
-  
   const db = await openDB();
-  
-  // 先获取项目信息以便记录删除的资源统计
-  let project: ProjectState | null = null;
-  try {
-    project = await loadProjectFromDB(id);
-  } catch (e) {
-    console.warn('无法加载项目信息，直接删除');
-  }
   
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     const request = store.delete(id);
     
-    request.onsuccess = () => {
-      if (project) {
-        // 统计被删除的资源
-        let resourceCount = {
-          characters: 0,
-          characterVariations: 0,
-          scenes: 0,
-          keyframes: 0,
-          videos: 0,
-          renderLogs: project.renderLogs?.length || 0
-        };
-        
-        if (project.scriptData) {
-          resourceCount.characters = project.scriptData.characters.filter(c => c.referenceImage).length;
-          resourceCount.scenes = project.scriptData.scenes.filter(s => s.referenceImage).length;
-          
-          // 统计角色变体
-          project.scriptData.characters.forEach(c => {
-            if (c.variations) {
-              resourceCount.characterVariations += c.variations.filter(v => v.referenceImage).length;
-            }
-          });
-        }
-        
-        if (project.shots) {
-          project.shots.forEach(shot => {
-            if (shot.keyframes) {
-              resourceCount.keyframes += shot.keyframes.filter(kf => kf.imageUrl).length;
-            }
-            if (shot.interval?.videoUrl) {
-              resourceCount.videos++;
-            }
-          });
-        }
-        
-        console.log(`✅ 项目已删除: ${project.title}`);
-        console.log(`📊 清理的资源统计:`, resourceCount);
-        console.log(`   - 角色参考图: ${resourceCount.characters}个`);
-        console.log(`   - 角色变体图: ${resourceCount.characterVariations}个`);
-        console.log(`   - 场景参考图: ${resourceCount.scenes}个`);
-        console.log(`   - 关键帧图像: ${resourceCount.keyframes}个`);
-        console.log(`   - 视频片段: ${resourceCount.videos}个`);
-        console.log(`   - 渲染日志: ${resourceCount.renderLogs}条`);
-      } else {
-        console.log(`✅ 项目已删除: ${id}`);
-      }
-      
-      resolve();
-    };
+    request.onsuccess = () => resolve();
     
     request.onerror = () => {
-      console.error(`❌ 删除项目失败: ${id}`, request.error);
+      console.error(`删除项目失败: ${id}`, request.error);
       reject(request.error);
     };
   });
 };
 
-/**
- * Convert a File object (image) to Base64 data URL
- * @param file - Image file to convert
- * @returns Promise<string> - Base64 data URL (e.g., "data:image/png;base64,...")
- */
 export const convertImageToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       reject(new Error('只支持图片文件'));
       return;
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       reject(new Error('图片大小不能超过 10MB'));
       return;
@@ -234,7 +217,6 @@ export const convertImageToBase64 = (file: File): Promise<string> => {
   });
 };
 
-// Initial template for new projects
 export const createNewProjectState = (): ProjectState => {
   const id = 'proj_' + Date.now().toString(36);
   return {
@@ -243,10 +225,10 @@ export const createNewProjectState = (): ProjectState => {
     createdAt: Date.now(),
     lastModified: Date.now(),
     stage: 'script',
-    targetDuration: '60s', // Default duration now 60s
-    language: '中文', // Default language
-    visualStyle: 'live-action', // Default visual style
-    shotGenerationModel: 'gpt-5.1', // Default model
+    targetDuration: '60s',
+    language: '中文',
+    visualStyle: 'live-action',
+    shotGenerationModel: 'gpt-5.1',
     rawScript: `标题：示例剧本
 
 场景 1
@@ -259,6 +241,6 @@ export const createNewProjectState = (): ProjectState => {
     scriptData: null,
     shots: [],
     isParsingScript: false,
-    renderLogs: [], // Initialize empty render logs array
+    renderLogs: [],
   };
 };

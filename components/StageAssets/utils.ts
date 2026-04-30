@@ -1,9 +1,6 @@
 import { REGIONAL_FEATURES, LANGUAGE_MAP, DEFAULTS } from './constants';
 import { convertImageToBase64 } from '../../services/storageService';
 
-/**
- * 根据语言获取地域特征前缀
- */
 export const getRegionalPrefix = (
   language: string,
   type: 'character' | 'scene'
@@ -15,9 +12,6 @@ export const getRegionalPrefix = (
   return features ? features[type] : '';
 };
 
-/**
- * 通用图片上传处理函数
- */
 export const handleImageUpload = async (file: File): Promise<string> => {
   try {
     return await convertImageToBase64(file);
@@ -27,9 +21,6 @@ export const handleImageUpload = async (file: File): Promise<string> => {
   }
 };
 
-/**
- * 获取项目语言配置
- */
 export const getProjectLanguage = (
   projectLanguage?: string,
   scriptLanguage?: string
@@ -37,9 +28,6 @@ export const getProjectLanguage = (
   return projectLanguage || scriptLanguage || DEFAULTS.language;
 };
 
-/**
- * 获取项目视觉风格
- */
 export const getProjectVisualStyle = (
   projectVisualStyle?: string,
   scriptVisualStyle?: string
@@ -47,23 +35,14 @@ export const getProjectVisualStyle = (
   return projectVisualStyle || scriptVisualStyle || DEFAULTS.visualStyle;
 };
 
-/**
- * 延迟执行
- */
 export const delay = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-/**
- * 生成唯一ID
- */
 export const generateId = (prefix: string = 'id'): string => {
   return `${prefix}-${Date.now()}`;
 };
 
-/**
- * 比较ID（统一转换为字符串比较）
- */
 export const compareIds = (id1: string | number, id2: string | number): boolean => {
   return String(id1) === String(id2);
 };

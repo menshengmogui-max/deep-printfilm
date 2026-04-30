@@ -59,8 +59,8 @@ const ApiKeyPage: React.FC<ApiKeyPageProps> = ({
     <div className="flex flex-col items-center text-center">
       {/* 图标 */}
       <div className="relative mb-6">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
-          <Key className="w-8 h-8 text-indigo-400" />
+        <div className="w-16 h-16 rounded-2xl bg-cyan-300/10 border border-cyan-200/25 flex items-center justify-center">
+          <Key className="w-8 h-8 text-cyan-300" />
         </div>
         {verifyStatus === 'success' && (
           <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
@@ -90,7 +90,7 @@ const ApiKeyPage: React.FC<ApiKeyPageProps> = ({
             setVerifyMessage('');
           }}
           placeholder="输入你的 API Key..."
-          className="w-full bg-[#141414] border border-zinc-800 text-white px-4 py-3 text-sm rounded-lg focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-900 transition-all font-mono placeholder:text-zinc-700 text-center"
+          className="w-full bg-white/[0.06] border border-white/10 text-white px-4 py-3 text-sm rounded-xl focus:border-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/10 transition-all font-mono placeholder:text-slate-500 text-center"
           disabled={isVerifying}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && inputKey.trim() && !isVerifying) {
@@ -120,18 +120,18 @@ const ApiKeyPage: React.FC<ApiKeyPageProps> = ({
           href="http://api.gitcc.com" 
           target="_blank" 
           rel="noreferrer" 
-          className="text-xs text-indigo-400 hover:underline inline-flex items-center gap-1"
+          className="text-xs text-cyan-300 hover:underline inline-flex items-center gap-1"
         >
           立即购买 <ExternalLink className="w-3 h-3" />
         </a>
         <span className="text-zinc-700">|</span>
         <a 
-          href="https://ocnf8yod3ljg.feishu.cn/wiki/MgFVw2EoQieTLKktaf2cHvu6nY3" 
+          href="https://www.gitcc.com" 
           target="_blank" 
           rel="noreferrer" 
-          className="text-xs text-indigo-400 hover:underline inline-flex items-center gap-1"
+          className="text-xs text-cyan-300 hover:underline inline-flex items-center gap-1"
         >
-          使用教程 <ExternalLink className="w-3 h-3" />
+          立即咨询 <ExternalLink className="w-3 h-3" />
         </a>
       </div>
 
@@ -139,7 +139,7 @@ const ApiKeyPage: React.FC<ApiKeyPageProps> = ({
       <button
         onClick={handleVerifyAndContinue}
         disabled={isVerifying}
-        className="px-8 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-zinc-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        className="px-8 py-3 bg-cyan-300 text-slate-950 font-bold text-sm rounded-xl hover:bg-cyan-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-cyan-500/20"
       >
         {isVerifying ? (
           <>
