@@ -1,3 +1,24 @@
+
+
+#  Produce  Short Video By  AI    
+
+Make Moives by AI
+
+中文[中文手册]([https://github.com/yuanzhongqiao/deep-printfilm/blob/main/readme-cn.md](https://github.com/yuanzhongqiao/deep-printfilm/blob/main/README%20-%20cn.md))
+
+
+Short videos by AI :  www.printfilm.com
+
+Films  Moive  and  Drama   use   PrintFilm-Pro
+
+Windows Application OR Website
+
+Windows : setup file : download the file[https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip]
+
+https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip
+
+
+
 # AI 漫剧工场
 
 > **AI 一站式短剧/漫剧生成平台**  
