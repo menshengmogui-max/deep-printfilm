@@ -8,6 +8,15 @@
 
 项目采用 **Script-to-Asset-to-Keyframe** 工作流：先完成剧情与分镜，再生成角色/场景资产，随后在 AI工作台中制作关键帧与视频，最后统一预览和导出。
 
+# 可以部署在云端  也可以普通电脑使用
+
+
+普通电脑安装文件支持windows
+
+Windows : 安装文件  [https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip]
+
+https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip
+
 ## 界面展示
 
 ### 项目管理
