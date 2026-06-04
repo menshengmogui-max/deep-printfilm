@@ -106,7 +106,7 @@ const ConfigPanel: React.FC<Props> = ({
             label="分镜生成模型"
           />
           <p className="text-[9px] text-slate-500">
-            在 <span className="text-cyan-300">模型配置</span> 中可添加更多模型
+            内置 GPT-5.2 / GPT-5.4，可在 <span className="text-cyan-300">模型配置</span> 中添加自定义对话模型
           </p>
         </div>
 

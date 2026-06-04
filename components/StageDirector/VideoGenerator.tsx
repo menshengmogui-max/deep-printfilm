@@ -8,13 +8,15 @@ import {
   getVideoModels,
   getActiveVideoModel,
 } from '../../services/modelRegistry';
-import { VideoModelDefinition } from '../../types/model';
+import { VideoModelDefinition, DEFAULT_VIDEO_MODEL_ID } from '../../types/model';
 
 interface VideoGeneratorProps {
   shot: Shot;
   hasStartFrame: boolean;
   hasEndFrame: boolean;
-  onGenerate: (aspectRatio: AspectRatio, duration: VideoDuration, modelId: string) => void;
+  onGenerate: (aspectRatio: AspectRatio, duration: VideoDuration, modelId: string, textToVideoOnly: boolean) => void;
+  textToVideoOnly?: boolean;
+  onTextToVideoOnlyChange?: (enabled: boolean) => void;
   onEditPrompt: () => void;
   onOptimizeForModeration?: () => void | Promise<void>;
   isOptimizingForModeration?: boolean;
@@ -27,13 +29,15 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
   onGenerate,
   onEditPrompt,
   onOptimizeForModeration,
-  isOptimizingForModeration = false
+  isOptimizingForModeration = false,
+  textToVideoOnly = false,
+  onTextToVideoOnlyChange,
 }) => {
   const videoModels = getVideoModels().filter(m => m.isEnabled);
   const defaultModel = getActiveVideoModel();
   
   const [selectedModelId, setSelectedModelId] = useState<string>(
-    shot.videoModel || defaultModel?.id || videoModels[0]?.id || 'sora-2'
+    shot.videoModel || defaultModel?.id || videoModels[0]?.id || DEFAULT_VIDEO_MODEL_ID
   );
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>(() => getDefaultAspectRatio());
   const [duration, setDuration] = useState<VideoDuration>(() => getDefaultVideoDuration());
@@ -55,8 +59,10 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
     }
   }, [selectedModelId]);
 
+  const canGenerate = textToVideoOnly || hasStartFrame;
+
   const handleGenerate = () => {
-    onGenerate(aspectRatio, duration, selectedModelId);
+    onGenerate(aspectRatio, duration, selectedModelId, textToVideoOnly);
   };
 
   return (
@@ -126,6 +132,24 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
           supportedDurations={selectedModel?.params.supportedDurations}
         />
       </div>
+
+      <label className="flex items-start gap-2.5 cursor-pointer group">
+        <input
+          type="checkbox"
+          checked={textToVideoOnly}
+          onChange={(e) => onTextToVideoOnlyChange?.(e.target.checked)}
+          disabled={isGenerating}
+          className="mt-0.5 rounded border-white/20 bg-white/[0.06] text-cyan-300 focus:ring-cyan-300/40"
+        />
+        <span className="flex-1">
+          <span className="text-xs text-zinc-300 group-hover:text-white transition-colors">
+            纯文生视频（不使用首帧）
+          </span>
+          <span className="block text-[9px] text-zinc-600 mt-0.5 leading-relaxed">
+            不上传起始关键帧作为参考图，仅根据视频描述生成。适用于首帧含人物被平台审核拦截的情况。
+          </span>
+        </span>
+      </label>
       
       {hasVideo ? (
         <div className="w-full aspect-video bg-black rounded-lg overflow-hidden border border-zinc-700 relative shadow-lg">
@@ -139,22 +163,29 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
 
       <button
         onClick={handleGenerate}
-        disabled={!hasStartFrame || isGenerating}
+        disabled={!canGenerate || isGenerating}
         className={`w-full py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
           hasVideo 
             ? 'bg-white/10 text-zinc-300 hover:bg-white/15'
             : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200 shadow-lg shadow-cyan-500/20'
-        } ${(!hasStartFrame) ? 'opacity-50 cursor-not-allowed' : ''}`}
+        } ${!canGenerate ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isGenerating ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            生成视频中 ({aspectRatio}, {modelType === 'sora' ? `${duration}秒` : selectedModel?.name})...
+            生成视频中 ({aspectRatio}, {modelType === 'sora' ? `${duration}秒` : selectedModel?.name}
+            {textToVideoOnly ? ', 纯文生' : ''})...
           </>
         ) : (
           <>{hasVideo ? '重新生成视频' : '开始生成视频'}</>
         )}
       </button>
+
+      {!canGenerate && !textToVideoOnly && (
+        <p className="text-[9px] text-amber-500/90 text-center">
+          请先生成起始帧，或勾选「纯文生视频」
+        </p>
+      )}
 
       {shot.interval?.status === 'failed' && shot.interval?.videoPrompt && onOptimizeForModeration && (
         <button
@@ -177,9 +208,14 @@ const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         </button>
       )}
       
-      {!hasEndFrame && (
+      {!textToVideoOnly && !hasEndFrame && (
         <div className="text-[9px] text-zinc-500 text-center font-mono">
           * 未检测到结束帧，将使用单图生成模式 (Image-to-Video)
+        </div>
+      )}
+      {textToVideoOnly && (
+        <div className="text-[9px] text-cyan-400/80 text-center font-mono">
+          * 纯文生模式：不会上传首帧/尾帧，仅发送视频描述文本
         </div>
       )}
     </div>

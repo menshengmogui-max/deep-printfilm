@@ -11,6 +11,12 @@ import {
   BUILTIN_PROVIDERS,
   ALL_BUILTIN_MODELS,
   DEFAULT_ACTIVE_MODELS,
+  DEFAULT_CHAT_MODEL_ID,
+  DEFAULT_IMAGE_MODEL_ID,
+  DEPRECATED_BUILTIN_CHAT_MODEL_IDS,
+  DEPRECATED_BUILTIN_IMAGE_MODEL_IDS,
+  DEPRECATED_BUILTIN_VIDEO_MODEL_IDS,
+  migrateDeprecatedVideoModelId,
   AspectRatio,
   VideoDuration,
 } from '../types/model';
@@ -39,14 +45,6 @@ export const loadRegistry = (): ModelRegistryState => {
     const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as ModelRegistryState;
-      const deprecatedVideoModelIds = [
-        'veo-3.1',
-        'veo_3_1_t2v_fast_landscape',
-        'veo_3_1_t2v_fast_portrait',
-        'veo_3_1_i2v_s_fast_fl_landscape',
-        'veo_3_1_i2v_s_fast_fl_portrait',
-      ];
-      
       // 合并内置提供商，并强制覆盖内置提供商的 baseUrl/name（避免 localStorage 里残留旧地址如 api.antsk.cn）
       BUILTIN_PROVIDERS.forEach(bp => {
         const idx = parsed.providers.findIndex(p => p.id === bp.id);
@@ -91,18 +89,56 @@ export const loadRegistry = (): ModelRegistryState => {
         return { ...m, apiModel: m.id };
       });
 
-      // 清理旧的 Veo 内置模型
       parsed.models = parsed.models.filter(
-        m => !(m.type === 'video' && deprecatedVideoModelIds.includes(m.id))
+        (m) =>
+          !(
+            m.type === 'video' &&
+            m.isBuiltIn &&
+            ((DEPRECATED_BUILTIN_VIDEO_MODEL_IDS as readonly string[]).includes(m.id) ||
+              m.id.startsWith('veo_3_1'))
+          )
       );
+      parsed.activeModels.video = migrateDeprecatedVideoModelId(parsed.activeModels.video);
 
-      // 迁移激活视频模型
+      parsed.models = parsed.models.filter(
+        (m) =>
+          !(
+            m.type === 'chat' &&
+            m.isBuiltIn &&
+            (DEPRECATED_BUILTIN_CHAT_MODEL_IDS as readonly string[]).includes(m.id)
+          )
+      );
       if (
-        deprecatedVideoModelIds.includes(parsed.activeModels.video) ||
-        parsed.activeModels.video?.startsWith('veo_3_1')
+        (DEPRECATED_BUILTIN_CHAT_MODEL_IDS as readonly string[]).includes(
+          parsed.activeModels.chat
+        )
       ) {
-        parsed.activeModels.video = 'veo';
+        parsed.activeModels.chat = DEFAULT_CHAT_MODEL_ID;
       }
+
+      parsed.models = parsed.models.filter(
+        (m) =>
+          !(
+            m.type === 'image' &&
+            m.isBuiltIn &&
+            (DEPRECATED_BUILTIN_IMAGE_MODEL_IDS as readonly string[]).includes(m.id)
+          )
+      );
+      if (
+        (DEPRECATED_BUILTIN_IMAGE_MODEL_IDS as readonly string[]).includes(
+          parsed.activeModels.image
+        )
+      ) {
+        parsed.activeModels.image = DEFAULT_IMAGE_MODEL_ID;
+      }
+
+      if (parsed.activeModels.video === 'sora-2' || parsed.activeModels.video === 'doubao-seedance-2-0') {
+        parsed.activeModels.video = DEFAULT_VIDEO_MODEL_ID;
+      }
+
+      parsed.models = parsed.models.filter(
+        (m) => !(m.isBuiltIn && m.id === 'doubao-seedance-2-0')
+      );
       
       // 同步全局 API Key
       parsed.globalApiKey = localStorage.getItem(API_KEY_STORAGE_KEY) || parsed.globalApiKey;
@@ -456,6 +492,14 @@ function isLocalOrigin(): boolean {
   return o.startsWith('http://localhost') || o.startsWith('http://127.0.0.1') || o.startsWith('https://localhost') || o.startsWith('https://127.0.0.1');
 }
 
+function isGitccApiBaseUrl(baseUrl: string): boolean {
+  try {
+    return new URL(baseUrl).hostname === 'api.gitcc.com';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * 获取模型对应的 API 基础 URL
  * 供应商使用 GitCC（api.gitcc.com），为了避免 CORS 和便于切换，
@@ -468,7 +512,7 @@ export const getApiBaseUrlForModel = (modelId: string): string => {
   let baseUrl = (provider?.baseUrl || BUILTIN_PROVIDERS[0].baseUrl).replace(/\/+$/, '');
 
   // 统一通过 /api-proxy 代理到 GitCC，避免浏览器直接跨域访问 api.gitcc.com
-  if (baseUrl === 'http://api.gitcc.com' || baseUrl === 'https://api.gitcc.com') {
+  if (isGitccApiBaseUrl(baseUrl)) {
     return API_PROXY_PATH;
   }
 

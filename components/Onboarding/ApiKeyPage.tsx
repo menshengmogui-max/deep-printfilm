@@ -117,7 +117,7 @@ const ApiKeyPage: React.FC<ApiKeyPageProps> = ({
       {/* 获取 Key 链接 */}
       <div className="flex items-center gap-4 mb-8">
         <a 
-          href="http://api.gitcc.com" 
+          href="https://api.gitcc.com" 
           target="_blank" 
           rel="noreferrer" 
           className="text-xs text-cyan-300 hover:underline inline-flex items-center gap-1"

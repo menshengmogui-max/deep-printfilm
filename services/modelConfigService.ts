@@ -15,7 +15,7 @@ const LEGACY_STORAGE_KEY = ['big' + 'banana', 'model', 'config'].join('_');
 const DEFAULT_PROVIDER: ModelProvider = {
   id: 'antsk',
   name: 'GitCC API (api.gitcc.com)',
-  baseUrl: 'http://api.gitcc.com',
+  baseUrl: 'https://api.gitcc.com',
   isDefault: true,
   isBuiltIn: true
 };
@@ -23,19 +23,19 @@ const DEFAULT_PROVIDER: ModelProvider = {
 const DEFAULT_CONFIG: ModelConfig = {
   chatModel: {
     providerId: 'antsk',
-    modelName: 'gpt-5.1',
+    modelName: 'gpt-5.2',
     endpoint: '/v1/chat/completions'
   },
   imageModel: {
     providerId: 'antsk',
-    modelName: 'gemini-3-pro-image-preview',
-    endpoint: '/v1beta/models/gemini-3-pro-image-preview:generateContent'
+    modelName: 'qwen-image-2.0',
+    endpoint: '/v1/images/generations'
   },
   videoModel: {
     providerId: 'antsk',
-    type: 'veo',
-    modelName: 'veo',
-    endpoint: '/v1/chat/completions'
+    type: 'sora',
+    modelName: 'doubao-seedance-2-0-fast',
+    endpoint: '/v1/videos'
   }
 };
 
@@ -66,12 +66,15 @@ export const loadModelConfig = (): ModelManagerState => {
           p.id === 'antsk' ? { ...p, baseUrl: DEFAULT_PROVIDER.baseUrl } : p
         );
       }
-      // 舊版 Veo 模型名需要遷移為現行統一 ID。
       const videoModelName = parsed.currentConfig?.videoModel?.modelName || '';
-      if (videoModelName === 'veo-3.1' || videoModelName.startsWith('veo_3_1')) {
-        parsed.currentConfig.videoModel.modelName = 'veo';
-        parsed.currentConfig.videoModel.type = 'veo';
-        parsed.currentConfig.videoModel.endpoint = '/v1/chat/completions';
+      if (
+        videoModelName === 'veo' ||
+        videoModelName === 'veo-3.1' ||
+        videoModelName.startsWith('veo_3_1')
+      ) {
+        parsed.currentConfig.videoModel.modelName = 'doubao-seedance-2-0-fast';
+        parsed.currentConfig.videoModel.type = 'sora';
+        parsed.currentConfig.videoModel.endpoint = '/v1/videos';
       }
       runtimeState = parsed;
       saveModelConfig(parsed);
@@ -196,7 +199,7 @@ export const getImageApiUrl = (): string => {
   const config = getCurrentConfig();
   const provider = getProviderById(config.imageModel.providerId) || getDefaultProvider();
   const baseUrl = provider.baseUrl.replace(/\/+$/, '');
-  const modelName = config.imageModel.modelName || 'gemini-3-pro-image-preview';
+  const modelName = config.imageModel.modelName || 'qwen-image-2.0';
   const endpoint = config.imageModel.endpoint || `/v1beta/models/${modelName}:generateContent`;
   return `${baseUrl}${endpoint}`;
 };
@@ -291,16 +294,15 @@ export const resetToDefault = (): void => {
 };
 
 export const AVAILABLE_CHAT_MODELS = [
-  { name: 'GPT-5.1', value: 'gpt-5.1', description: '最新版本，推荐使用' },
-  { name: 'GPT-4.1', value: 'gpt-41', description: '稳定版本' },
-  { name: 'GPT-5.2', value: 'gpt-5.2', description: '实验版本' },
+  { name: 'GPT-5.2', value: 'gpt-5.2', description: '默认推荐，结构化输出稳定' },
+  { name: 'GPT-5.4', value: 'gpt-5.4', description: '创意增强，适合改写与多种切分方案' },
 ];
 
 export const AVAILABLE_IMAGE_MODELS = [
-  { name: 'Gemini 3 Pro Image', value: 'gemini-3-pro-image-preview', description: '高质量图片生成' },
+  { name: 'Qwen Image 2.0', value: 'qwen-image-2.0', description: '默认推荐，文生图 /v1/images/generations' },
 ];
 
 export const AVAILABLE_VIDEO_MODELS = [
-  { name: 'Veo 3.1（自动）', value: 'veo', type: 'veo' as const, description: '生成时自动按横竖屏与是否带图选择模型' },
+  { name: '豆包 Seedance 2.0 Fast', value: 'doubao-seedance-2-0-fast', type: 'sora' as const, description: '默认推荐，异步 /v1/videos' },
   { name: 'Sora-2', value: 'sora-2', type: 'sora' as const, description: '异步模式，支持 4/8/12 秒' },
 ];

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutGrid, Sparkles, Loader2, AlertCircle, Edit2, Film, Video as VideoIcon } from 'lucide-react';
 import { ProjectState, Shot, Keyframe, AspectRatio, VideoDuration } from '../../types';
+import { migrateDeprecatedChatModelId, migrateDeprecatedVideoModelId } from '../../types/model';
 import { generateImage, generateVideo, generateActionSuggestion, optimizeKeyframePrompt, optimizeBothKeyframes, enhanceKeyframePrompt, splitShotIntoSubShots, rewritePromptForModeration } from '../../services/geminiService';
 import { 
   getRefImagesForShot, 
@@ -180,20 +181,46 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
     input.click();
   };
 
-  const handleGenerateVideo = async (shot: Shot, aspectRatio: AspectRatio = '16:9', duration: VideoDuration = 8, modelId?: string) => {
+  const handleTextToVideoOnlyChange = (shot: Shot, enabled: boolean) => {
+    const sKf = shot.keyframes?.find(k => k.type === 'start');
+    const eKf = shot.keyframes?.find(k => k.type === 'end');
+    const intervalId = shot.interval?.id || generateId(`int-${shot.id}`);
+
+    updateShot(shot.id, (s) => ({
+      ...s,
+      interval: s.interval
+        ? { ...s.interval, textToVideoOnly: enabled }
+        : {
+            id: intervalId,
+            startKeyframeId: sKf?.id || '',
+            endKeyframeId: eKf?.id || '',
+            duration: 8,
+            motionStrength: 5,
+            textToVideoOnly: enabled,
+            status: 'pending',
+          },
+    }));
+  };
+
+  const handleGenerateVideo = async (
+    shot: Shot,
+    aspectRatio: AspectRatio = '16:9',
+    duration: VideoDuration = 8,
+    modelId?: string,
+    textToVideoOnly = false
+  ) => {
     const sKf = shot.keyframes?.find(k => k.type === 'start');
     const eKf = shot.keyframes?.find(k => k.type === 'end');
 
-    if (!sKf?.imageUrl) return showAlert("请先生成起始帧！", { type: 'warning' });
-
-    let selectedModel: string = modelId || shot.videoModel || DEFAULTS.videoModel;
-    // 规范化模型名称：'veo_3_1_i2v_s_fast_fl_landscape' -> 'veo'
-    if (selectedModel.startsWith('veo_3_1')) {
-      selectedModel = 'veo';
+    if (!textToVideoOnly && !sKf?.imageUrl) {
+      return showAlert('请先生成起始帧，或勾选「纯文生视频（不使用首帧）」', { type: 'warning' });
     }
+
+    let selectedModel: string = migrateDeprecatedVideoModelId(
+      modelId || shot.videoModel || DEFAULTS.videoModel
+    );
     
     const projectLanguage = project.language || project.scriptData?.language || '中文';
-    // 若该镜头已有保存的提示词（如经「AI 优化描述」改写），优先使用，否则按动作/镜头运动重新构建
     const videoPrompt = shot.interval?.videoPrompt || buildVideoPrompt(
       shot.actionSummary,
       shot.cameraMovement,
@@ -206,13 +233,14 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
     updateShot(shot.id, (s) => ({
       ...s,
       videoModel: selectedModel as any,
-      interval: s.interval ? { ...s.interval, status: 'generating', videoPrompt } : {
+      interval: s.interval ? { ...s.interval, status: 'generating', videoPrompt, textToVideoOnly } : {
         id: intervalId,
-        startKeyframeId: sKf.id,
+        startKeyframeId: sKf?.id || '',
         endKeyframeId: eKf?.id || '',
         duration: duration,
         motionStrength: 5,
         videoPrompt,
+        textToVideoOnly,
         status: 'generating'
       }
     }));
@@ -220,8 +248,8 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
     try {
       const videoUrl = await generateVideo(
         videoPrompt, 
-        sKf.imageUrl, 
-        eKf?.imageUrl,
+        textToVideoOnly ? undefined : sKf?.imageUrl, 
+        textToVideoOnly ? undefined : eKf?.imageUrl,
         selectedModel,
         aspectRatio,
         duration
@@ -229,13 +257,14 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
 
       updateShot(shot.id, (s) => ({
         ...s,
-        interval: s.interval ? { ...s.interval, videoUrl, status: 'completed' } : {
+        interval: s.interval ? { ...s.interval, videoUrl, status: 'completed', textToVideoOnly } : {
           id: intervalId,
-          startKeyframeId: sKf.id,
+          startKeyframeId: sKf?.id || '',
           endKeyframeId: eKf?.id || '',
           duration: 10,
           motionStrength: 5,
           videoPrompt,
+          textToVideoOnly,
           videoUrl,
           status: 'completed'
         }
@@ -244,11 +273,11 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
       console.error(e);
       updateShot(shot.id, (s) => ({
         ...s,
-        interval: s.interval ? { ...s.interval, status: 'failed' } : undefined
+        interval: s.interval ? { ...s.interval, status: 'failed', textToVideoOnly } : undefined
       }));
       
       if (onApiKeyError && onApiKeyError(e)) return;
-      showAlert(`视频生成失败: ${e.message}`, { type: 'error' });
+      showAlert(e.message || '视频生成失败', { type: 'error' });
     }
   };
 
@@ -579,7 +608,8 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
     }
     
     const visualStyle = project.visualStyle || project.scriptData?.visualStyle || 'live-action';
-    const shotGenerationModel = project.shotGenerationModel || 'gpt-5.1';
+    const shotGenerationModel =
+      migrateDeprecatedChatModelId(project.shotGenerationModel) || 'gpt-5.2';
     
     setIsSplittingShot(true);
     
@@ -740,7 +770,10 @@ const StageDirector: React.FC<Props> = ({ project, updateProject, onApiKeyError 
             onCopyNextStartFrame={handleCopyNextStartFrame}
             useAIEnhancement={useAIEnhancement}
             onToggleAIEnhancement={() => setUseAIEnhancement(!useAIEnhancement)}
-            onGenerateVideo={(aspectRatio, duration, modelId) => handleGenerateVideo(activeShot, aspectRatio, duration, modelId)}
+            onGenerateVideo={(aspectRatio, duration, modelId, textToVideoOnly) =>
+              handleGenerateVideo(activeShot, aspectRatio, duration, modelId, textToVideoOnly)
+            }
+            onTextToVideoOnlyChange={(enabled) => handleTextToVideoOnlyChange(activeShot, enabled)}
             onEditVideoPrompt={() => {
               let promptValue = activeShot.interval?.videoPrompt;
               if (!promptValue) {

@@ -17,6 +17,7 @@ import {
   getImageModels,
   getVideoModels,
 } from '../services/modelRegistry';
+import { migrateDeprecatedChatModelId, migrateDeprecatedVideoModelId } from '../types/model';
 
 interface ModelSelectorProps {
   type: ModelType;
@@ -59,17 +60,30 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   };
 
   const models = getModels();
-  const selectedModel = models.find(m => m.id === value);
+  const resolvedValue =
+    type === 'chat'
+      ? migrateDeprecatedChatModelId(value)
+      : type === 'video'
+        ? migrateDeprecatedVideoModelId(value)
+        : value;
+  const selectedModel = models.find(m => m.id === resolvedValue);
+  const showOrphanOption =
+    (type === 'chat' || type === 'video') &&
+    !!resolvedValue &&
+    !models.some((m) => m.id === resolvedValue);
 
   if (compact) {
     return (
       <div className="relative">
         <select
-          value={value}
+          value={resolvedValue}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
           className="appearance-none bg-white/[0.06] border border-white/10 text-white text-xs rounded-xl px-3 py-1.5 pr-7 focus:border-cyan-300/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
+          {showOrphanOption && (
+            <option value={resolvedValue}>{resolvedValue}</option>
+          )}
           {models.map((model) => (
             <option key={model.id} value={model.id}>
               {model.name}
@@ -91,11 +105,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
       )}
       <div className="relative">
         <select
-          value={value}
+          value={resolvedValue}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
           className="w-full appearance-none bg-white/[0.06] border border-white/10 text-white text-xs rounded-xl px-3 py-2.5 pr-8 focus:border-cyan-300/40 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
+          {showOrphanOption && (
+            <option value={resolvedValue}>{resolvedValue}</option>
+          )}
           {models.map((model) => (
             <option key={model.id} value={model.id}>
               {model.name} {model.description ? `- ${model.description}` : ''}

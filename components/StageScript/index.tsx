@@ -4,6 +4,7 @@ import { ProjectState } from '../../types';
 import { parseScriptToData, generateShotList, continueScript, continueScriptStream, rewriteScript, rewriteScriptStream } from '../../services/geminiService';
 import { getFinalValue, validateConfig } from './utils';
 import { DEFAULTS } from './constants';
+import { migrateDeprecatedChatModelId } from '../../types/model';
 import ConfigPanel from './ConfigPanel';
 import ScriptEditor from './ScriptEditor';
 import SceneBreakdown from './SceneBreakdown';
@@ -22,7 +23,9 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   const [localTitle, setLocalTitle] = useState(project.title);
   const [localDuration, setLocalDuration] = useState(project.targetDuration || DEFAULTS.duration);
   const [localLanguage, setLocalLanguage] = useState(project.language || DEFAULTS.language);
-  const [localModel, setLocalModel] = useState(project.shotGenerationModel || DEFAULTS.model);
+  const [localModel, setLocalModel] = useState(
+    migrateDeprecatedChatModelId(project.shotGenerationModel || DEFAULTS.model)
+  );
   const [localVisualStyle, setLocalVisualStyle] = useState(project.visualStyle || DEFAULTS.visualStyle);
   const [customDurationInput, setCustomDurationInput] = useState('');
   const [customModelInput, setCustomModelInput] = useState('');
@@ -47,13 +50,13 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
     setLocalTitle(project.title);
     setLocalDuration(project.targetDuration || DEFAULTS.duration);
     setLocalLanguage(project.language || DEFAULTS.language);
-    setLocalModel(project.shotGenerationModel || DEFAULTS.model);
+    setLocalModel(migrateDeprecatedChatModelId(project.shotGenerationModel || DEFAULTS.model));
     setLocalVisualStyle(project.visualStyle || DEFAULTS.visualStyle);
   }, [project.id]);
 
   const handleAnalyze = async () => {
     const finalDuration = getFinalValue(localDuration, customDurationInput);
-    const finalModel = getFinalValue(localModel, customModelInput);
+    const finalModel = migrateDeprecatedChatModelId(getFinalValue(localModel, customModelInput));
     const finalVisualStyle = getFinalValue(localVisualStyle, customStyleInput);
 
     const validation = validateConfig({
@@ -113,7 +116,7 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   };
 
   const handleContinueScript = async () => {
-    const finalModel = getFinalValue(localModel, customModelInput);
+    const finalModel = migrateDeprecatedChatModelId(getFinalValue(localModel, customModelInput));
     
     if (!localScript.trim()) {
       setError("请先输入一些剧本内容作为基础。");
@@ -162,7 +165,7 @@ const StageScript: React.FC<Props> = ({ project, updateProject }) => {
   };
 
   const handleRewriteScript = async () => {
-    const finalModel = getFinalValue(localModel, customModelInput);
+    const finalModel = migrateDeprecatedChatModelId(getFinalValue(localModel, customModelInput));
     
     if (!localScript.trim()) {
       setError("请先输入剧本内容。");

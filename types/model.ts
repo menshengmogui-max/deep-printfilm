@@ -137,10 +137,29 @@ export const DEFAULT_VIDEO_PARAMS_DOUBAO: VideoModelParams = {
   supportedDurations: [4, 8, 12],
 };
 
+/** 全局默认文本模型 ID */
+export const DEFAULT_CHAT_MODEL_ID = 'gpt-5.2';
+
+/** 已下架的内置文本模型（加载时迁移到默认模型，自定义模型不受影响） */
+export const DEPRECATED_BUILTIN_CHAT_MODEL_IDS = [
+  'gpt-5.1',
+  'gpt-41',
+  'claude-sonnet-4-5-20250929',
+] as const;
+
+/** 将旧内置模型 ID 迁移为默认；其余 ID（含用户自定义）原样保留 */
+export const migrateDeprecatedChatModelId = (modelId?: string): string => {
+  if (!modelId?.trim()) return DEFAULT_CHAT_MODEL_ID;
+  if ((DEPRECATED_BUILTIN_CHAT_MODEL_IDS as readonly string[]).includes(modelId)) {
+    return DEFAULT_CHAT_MODEL_ID;
+  }
+  return modelId;
+};
+
 export const BUILTIN_CHAT_MODELS: ChatModelDefinition[] = [
   {
-    id: 'gpt-5.1',
-    name: 'GPT-5.1',
+    id: 'gpt-5.2',
+    name: 'GPT-5.2',
     type: 'chat',
     providerId: 'antsk',
     description: '剧情脚本切分首选：结构化输出稳定，适合分场/分镜、提取人物与事件',
@@ -149,68 +168,81 @@ export const BUILTIN_CHAT_MODELS: ChatModelDefinition[] = [
     params: { ...DEFAULT_CHAT_PARAMS },
   },
   {
-    id: 'gpt-5.2',
-    name: 'GPT-5.2',
+    id: 'gpt-5.4',
+    name: 'GPT-5.4',
     type: 'chat',
     providerId: 'antsk',
-    description: '创意增强型切分：更适合提供多种切分方案、改写节奏与镜头建议（一致性略弱）',
-    isBuiltIn: true,
-    isEnabled: true,
-    params: { ...DEFAULT_CHAT_PARAMS },
-  },
-  {
-    id: 'gpt-41',
-    name: 'GPT-4.1',
-    type: 'chat',
-    providerId: 'antsk',
-    description: '严谨切分：对复杂叙事与长文本更稳，适合时间线梳理、因果关系与要点校对',
-    isBuiltIn: true,
-    isEnabled: true,
-    params: { ...DEFAULT_CHAT_PARAMS },
-  },
-  {
-    id: 'claude-sonnet-4-5-20250929',
-    name: 'Claude Sonnet 4.5',
-    type: 'chat',
-    providerId: 'antsk',
-    description: '长文友好：适合长篇剧本的分段、摘要与角色弧线整理，文字表达更细腻',
+    description: '创意增强型切分：更适合提供多种切分方案、改写节奏与镜头建议',
     isBuiltIn: true,
     isEnabled: true,
     params: { ...DEFAULT_CHAT_PARAMS },
   },
 ];
 
+/** 全局默认图片模型 ID */
+export const DEFAULT_IMAGE_MODEL_ID = 'qwen-image-2.0';
+
 export const BUILTIN_IMAGE_MODELS: ImageModelDefinition[] = [
   {
-    id: 'gemini-3-pro-image-preview',
-    name: 'Gemini 3 Pro Image',
+    id: 'qwen-image-2.0',
+    name: 'Qwen Image 2.0',
     type: 'image',
     providerId: 'antsk',
-    endpoint: '/v1beta/models/gemini-3-pro-image-preview:generateContent',
-    description: 'Google Gemini 图片生成模型',
+    endpoint: '/v1/images/generations',
+    description: '通义万相图片生成，文生图走 /v1/images/generations',
     isBuiltIn: true,
     isEnabled: true,
     params: { ...DEFAULT_IMAGE_PARAMS },
   },
 ];
 
+/** 已下架的内置图片模型（加载时移除，激活项迁移到默认模型） */
+export const DEPRECATED_BUILTIN_IMAGE_MODEL_IDS = ['gemini-3-pro-image-preview'] as const;
+
+/** 全局默认视频模型 ID */
+export const DEFAULT_VIDEO_MODEL_ID = 'doubao-seedance-2-0-fast';
+
+/** 已下架的内置视频模型（加载时迁移到默认视频模型，自定义模型不受影响） */
+export const DEPRECATED_BUILTIN_VIDEO_MODEL_IDS = [
+  'veo',
+  'veo-3.1',
+  'veo_3_1_t2v_fast_landscape',
+  'veo_3_1_t2v_fast_portrait',
+  'veo_3_1_i2v_s_fast_fl_landscape',
+  'veo_3_1_i2v_s_fast_fl_portrait',
+] as const;
+
+/** 将旧内置视频模型 ID 迁移为默认视频模型；其余 ID（含用户自定义）原样保留 */
+export const migrateDeprecatedVideoModelId = (modelId?: string): string => {
+  if (!modelId?.trim()) return DEFAULT_VIDEO_MODEL_ID;
+  if (
+    modelId.startsWith('veo_3_1') ||
+    (DEPRECATED_BUILTIN_VIDEO_MODEL_IDS as readonly string[]).includes(modelId)
+  ) {
+    return DEFAULT_VIDEO_MODEL_ID;
+  }
+  return modelId;
+};
+
 export const BUILTIN_VIDEO_MODELS: VideoModelDefinition[] = [
   {
-    id: 'veo',
-    name: 'Veo 3.1 (Auto)',
+    id: 'doubao-seedance-2-0-fast',
+    name: '豆包 Seedance 2.0 Fast',
     type: 'video',
     providerId: 'antsk',
-    endpoint: '/v1/chat/completions',
-    description: 'Google Veo 视频生成（自动按横竖屏与是否带图选择模型），同步模式',
+    apiModel: 'doubao-seedance-2-0-fast',
+    endpoint: '/v1/videos',
+    description: '豆包 Seedance 2.0 Fast 视频生成（GitCC 异步 /v1/videos，默认推荐）',
     isBuiltIn: true,
     isEnabled: true,
-    params: { ...DEFAULT_VIDEO_PARAMS_VEO },
+    params: { ...DEFAULT_VIDEO_PARAMS_SORA },
   },
   {
     id: 'sora-2',
     name: 'Sora-2',
     type: 'video',
     providerId: 'antsk',
+    apiModel: 'sora-2',
     endpoint: '/v1/videos',
     description: 'OpenAI Sora 视频生成，异步模式，支持多种时长',
     isBuiltIn: true,
@@ -219,7 +251,7 @@ export const BUILTIN_VIDEO_MODELS: VideoModelDefinition[] = [
   },
 ];
 
-export const DEPEI_PROVIDER_BASE_URL = 'http://api.gitcc.com';
+export const DEPEI_PROVIDER_BASE_URL = 'https://api.gitcc.com';
 
 export const BUILTIN_PROVIDERS: ModelProvider[] = [
   {
@@ -238,7 +270,7 @@ export const ALL_BUILTIN_MODELS: ModelDefinition[] = [
 ];
 
 export const DEFAULT_ACTIVE_MODELS: ActiveModels = {
-  chat: 'gpt-5.1',
-  image: 'gemini-3-pro-image-preview',
-  video: 'sora-2',
+  chat: DEFAULT_CHAT_MODEL_ID,
+  image: DEFAULT_IMAGE_MODEL_ID,
+  video: DEFAULT_VIDEO_MODEL_ID,
 };

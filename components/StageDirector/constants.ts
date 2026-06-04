@@ -66,6 +66,6 @@ Technical Requirements:
 };
 
 export const DEFAULTS = {
-  videoModel: 'sora-2' as const,
+  videoModel: 'doubao-seedance-2-0-fast' as const,
   batchGenerateDelay: 3000,
 };

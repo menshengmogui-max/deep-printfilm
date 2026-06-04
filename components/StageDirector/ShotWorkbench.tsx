@@ -32,7 +32,8 @@ interface ShotWorkbenchProps {
   onCopyNextStartFrame: () => void;
   useAIEnhancement: boolean;
   onToggleAIEnhancement: () => void;
-  onGenerateVideo: (aspectRatio: AspectRatio, duration: VideoDuration, modelId: string) => void;
+  onGenerateVideo: (aspectRatio: AspectRatio, duration: VideoDuration, modelId: string, textToVideoOnly: boolean) => void;
+  onTextToVideoOnlyChange: (enabled: boolean) => void;
   onEditVideoPrompt: () => void;
   onOptimizeVideoPromptForModeration: () => void;
   onImageClick: (url: string, title: string) => void;
@@ -68,6 +69,7 @@ const ShotWorkbench: React.FC<ShotWorkbenchProps> = ({
   onGenerateVideo,
   onEditVideoPrompt,
   onOptimizeVideoPromptForModeration,
+  onTextToVideoOnlyChange,
   onImageClick
 }) => {
   const scene = scriptData?.scenes.find(s => String(s.id) === String(shot.sceneId));
@@ -225,6 +227,8 @@ const ShotWorkbench: React.FC<ShotWorkbenchProps> = ({
           shot={shot}
           hasStartFrame={!!startKf?.imageUrl}
           hasEndFrame={!!endKf?.imageUrl}
+          textToVideoOnly={shot.interval?.textToVideoOnly ?? false}
+          onTextToVideoOnlyChange={onTextToVideoOnlyChange}
           onGenerate={onGenerateVideo}
           onEditPrompt={onEditVideoPrompt}
           onOptimizeForModeration={onOptimizeVideoPromptForModeration}

@@ -166,7 +166,7 @@ const ModelManagerTab: React.FC<ModelManagerTabProps> = ({ onConfigChange }) => 
             </p>
             <div className="flex items-center gap-3">
               <a 
-                href="http://api.gitcc.com" 
+                href="https://api.gitcc.com"
                 target="_blank" 
                 rel="noreferrer"
                 className="px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors inline-flex items-center gap-1.5"

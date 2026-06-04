@@ -1,6 +1,12 @@
 import { ImageModelDefinition, ImageGenerateOptions, AspectRatio } from '../../types/model';
 import { getApiKeyForModel, getApiBaseUrlForModel, getActiveImageModel } from '../modelRegistry';
 import { ApiKeyError } from './chatAdapter';
+import {
+  shouldUseImagesGenerationsEndpoint,
+  callImagesGenerationsApi,
+  extractImageFromApiResponse,
+  normalizeImageResult,
+} from '../imageGenerationHelpers';
 
 const retryOperation = async <T>(
   operation: () => Promise<T>,
@@ -44,6 +50,19 @@ export const callImageApi = async (
   
   const apiBase = getApiBaseUrlForModel(activeModel.id);
   const apiModel = activeModel.apiModel || activeModel.id;
+  const customEndpoint = activeModel.endpoint;
+  const aspectRatio = options.aspectRatio || activeModel.params.defaultAspectRatio;
+
+  if (shouldUseImagesGenerationsEndpoint(apiModel, customEndpoint)) {
+    return callImagesGenerationsApi({
+      apiBase,
+      apiKey,
+      model: apiModel,
+      prompt: options.prompt,
+      aspectRatio,
+    });
+  }
+
   const endpoint = '/v1/chat/completions';
 
   let finalPrompt = options.prompt;
@@ -74,9 +93,22 @@ export const callImageApi = async (
     `;
   }
 
+  const messageContent: Array<
+    { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
+  > = [{ type: 'text', text: finalPrompt }];
+  if (options.referenceImages?.length) {
+    for (const img of options.referenceImages) {
+      if (!img?.trim()) continue;
+      const url = /^data:image\//i.test(img)
+        ? img
+        : `data:image/png;base64,${img.replace(/^data:image\/[^;]+;base64,/, '')}`;
+      messageContent.push({ type: 'image_url', image_url: { url } });
+    }
+  }
+
   const requestBody: any = {
     model: apiModel,
-    messages: [{ role: 'user', content: finalPrompt }],
+    messages: [{ role: 'user', content: messageContent }],
     max_tokens: 2048,
   };
 
@@ -115,45 +147,11 @@ export const callImageApi = async (
     return await res.json();
   });
 
-  const extractDataUrlFromContent = (text: string): string | null => {
-    if (!text || typeof text !== 'string') return null;
-    if (/^data:image\//i.test(text.trim())) return text.trim();
-    const markdownMatch = text.match(/!\[[^\]]*\]\((data:image\/[^;]+;base64,[^)]+)\)/i);
-    if (markdownMatch) return markdownMatch[1];
-    const anyDataMatch = text.match(/(data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)/);
-    if (anyDataMatch) return anyDataMatch[1];
-    return null;
-  };
-
-  // 兼容 OpenAI choices 與 Gemini candidates 兩種圖片返回格式。
-  const choices = response.choices;
-  if (choices && choices.length > 0) {
-    const msg = choices[0].message;
-    const content = msg?.content;
-    if (content) {
-      if (typeof content === 'string') {
-        const result = extractDataUrlFromContent(content) ?? (content.length > 100 ? `data:image/png;base64,${content}` : null);
-        if (result) return result;
-      }
-      if (Array.isArray(content)) {
-        for (const item of content) {
-          if (item.type === 'image_url' && item.image_url?.url) {
-            const url = item.image_url.url;
-            return url.startsWith('data:') ? url : `data:image/png;base64,${url}`;
-          }
-        }
-      }
-    }
+  const extracted = extractImageFromApiResponse(response);
+  if (extracted) {
+    return normalizeImageResult(extracted);
   }
-  const candidates = response.candidates || [];
-  if (candidates.length > 0 && candidates[0].content && candidates[0].content.parts) {
-    for (const part of candidates[0].content.parts) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-  }
-  throw new Error('图片生成失败：未能从响应中提取图片数据');
+  throw new Error(`图片生成失败：模型 ${apiModel} 未返回图片数据`);
 };
 
 export const isAspectRatioSupported = (

@@ -23,7 +23,7 @@ import { applyLibraryItemToProject, createLibraryItemFromCharacter, createLibrar
 import { AspectRatioSelector } from '../AspectRatioSelector';
 import { getDefaultAspectRatio, getImageModels, getActiveImageModel, getModelById } from '../../services/modelRegistry';
 import ModelSelector from '../ModelSelector';
-import { ImageModelDefinition } from '../../types/model';
+import { ImageModelDefinition, DEFAULT_IMAGE_MODEL_ID } from '../../types/model';
 
 interface Props {
   project: ProjectState;
@@ -47,7 +47,7 @@ const StageAssets: React.FC<Props> = ({ project, updateProject, onApiKeyError })
   
   const defaultImageModel = getActiveImageModel();
   const [selectedImageModelId, setSelectedImageModelId] = useState<string>(
-    defaultImageModel?.id || 'gemini-3-pro-image-preview'
+    defaultImageModel?.id || DEFAULT_IMAGE_MODEL_ID
   );
 
   const language = getProjectLanguage(project.language, project.scriptData?.language);

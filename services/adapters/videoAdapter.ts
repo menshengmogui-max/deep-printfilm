@@ -1,8 +1,8 @@
 import { VideoModelDefinition, VideoGenerateOptions, AspectRatio, VideoDuration } from '../../types/model';
 import { getApiKeyForModel, getApiBaseUrlForModel, getActiveVideoModel } from '../modelRegistry';
 import { ApiKeyError } from './chatAdapter';
-import { throwFromVideoHttpError, formatModerationBlockedForUser } from '../videoHttpErrors';
-import { resolveSoraVideoDownloadId, extractSoraDirectVideoUrl, fetchVideoUrlAsDataUrl } from '../soraVideoResolve';
+import { throwFromVideoHttpError, formatVideoTaskErrorForUser } from '../videoHttpErrors';
+import { resolveSoraVideoDownloadId, downloadSoraCompletedVideo, encodeVideoPathId } from '../soraVideoResolve';
 
 const retryOperation = async <T>(
   operation: () => Promise<T>,
@@ -240,7 +240,7 @@ const callSoraApi = async (
   while (Date.now() - startTime < maxPollingTime) {
     await new Promise(resolve => setTimeout(resolve, pollingInterval));
     
-    const statusResponse = await fetch(`${apiBase}/v1/videos/${taskId}`, {
+    const statusResponse = await fetch(`${apiBase}/v1/videos/${encodeVideoPathId(taskId)}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -266,126 +266,23 @@ const callSoraApi = async (
       if (!videoId) {
         videoId = statusData.id || null;
       }
-      if (videoId && String(videoId).startsWith('task_')) {
-        await new Promise((r) => setTimeout(r, 1500));
-        try {
-          const refresh = await fetch(`${apiBase}/v1/videos/${taskId}`, {
-            method: 'GET',
-            headers: { Accept: 'application/json', Authorization: `Bearer ${apiKey}` },
-          });
-          if (refresh.ok) {
-            const refreshed = await refresh.json();
-            const v2 = resolveSoraVideoDownloadId(refreshed as Record<string, unknown>);
-            if (v2 && v2.startsWith('video_')) {
-              videoId = v2;
-            }
-          }
-        } catch (_) {
-          /* ignore */
-        }
-      }
       break;
     } else if (status === 'failed' || status === 'error') {
-      const err = statusData.error;
-      const errMsg = typeof err === 'string' ? err : (err?.message || err?.code || statusData.message || '未知错误');
-      if (err?.code === 'moderation_blocked') {
-        throw new Error(formatModerationBlockedForUser(err, 'sora'));
-      }
-      throw new Error(`视频生成失败: ${errMsg}`);
+      throw new Error(formatVideoTaskErrorForUser(statusData.error ?? statusData, statusData.message, 'sora'));
     }
   }
 
-  const directUrl = completedStatus ? extractSoraDirectVideoUrl(completedStatus) : null;
-  if (directUrl) {
-    try {
-      return await fetchVideoUrlAsDataUrl(directUrl);
-    } catch (e: any) {
-      console.warn('直链下载失败，回退 /content:', e?.message);
-    }
-  }
-
-  if (!videoId) {
+  if (!videoId && !completedStatus) {
     throw new Error('视频生成超时 (20分钟) 或未返回视频 ID');
   }
 
-  const maxDownloadRetries = 5;
-  const downloadTimeout = 600000;
-
-  for (let attempt = 1; attempt <= maxDownloadRetries; attempt++) {
-    try {
-      const downloadController = new AbortController();
-      const downloadTimeoutId = setTimeout(() => downloadController.abort(), downloadTimeout);
-      
-      const downloadResponse = await fetch(`${apiBase}/v1/videos/${videoId}/content`, {
-        method: 'GET',
-        headers: {
-          'Accept': '*/*',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        signal: downloadController.signal,
-      });
-      
-      clearTimeout(downloadTimeoutId);
-      
-      if (!downloadResponse.ok) {
-        if (
-          downloadResponse.status === 502 &&
-          videoId &&
-          String(videoId).startsWith('task_') &&
-          attempt < maxDownloadRetries
-        ) {
-          try {
-            const refresh = await fetch(`${apiBase}/v1/videos/${taskId}`, {
-              method: 'GET',
-              headers: { Accept: 'application/json', Authorization: `Bearer ${apiKey}` },
-            });
-            if (refresh.ok) {
-              const d = await refresh.json();
-              const v2 = resolveSoraVideoDownloadId(d as Record<string, unknown>);
-              if (v2 && v2.startsWith('video_')) {
-                videoId = v2;
-                console.warn('下载 502，已切换为 video_ 资源 ID 重试:', videoId);
-                await new Promise((r) => setTimeout(r, 3000));
-                continue;
-              }
-            }
-          } catch (_) {
-            /* fall through */
-          }
-        }
-        if (downloadResponse.status >= 500 && attempt < maxDownloadRetries) {
-          console.warn(`下载失败 HTTP ${downloadResponse.status}，${5 * attempt}秒后重试...`);
-          await new Promise(resolve => setTimeout(resolve, 5000 * attempt));
-          continue;
-        }
-        throw new Error(`视频下载失败: HTTP ${downloadResponse.status}`);
-      }
-      
-      const videoBlob = await downloadResponse.blob();
-      
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          if (result && result.startsWith('data:')) {
-            resolve(result);
-          } else {
-            reject(new Error('视频转换失败'));
-          }
-        };
-        reader.onerror = () => reject(new Error('视频读取失败'));
-        reader.readAsDataURL(videoBlob);
-      });
-    } catch (error: any) {
-      if (attempt === maxDownloadRetries) {
-        throw error;
-      }
-      console.warn(`下载出错: ${error.message}，重试中...`);
-      await new Promise(resolve => setTimeout(resolve, 5000 * attempt));
-    }
-  }
-
-  throw new Error('视频下载失败：已达到最大重试次数');
+  return downloadSoraCompletedVideo({
+    apiBase,
+    apiKey,
+    taskId,
+    completedStatus,
+    initialVideoId: videoId,
+  });
 };
 
 const callDoubaoSeedanceApi = async (
@@ -496,16 +393,22 @@ export const callVideoApi = async (
   const apiBase = getApiBaseUrlForModel(activeModel.id);
   const mode = activeModel.params.mode;
 
-  const isDoubaoSeedance =
-    mode === 'doubao' ||
-    (activeModel.endpoint && activeModel.endpoint.includes('/api/v3/contents/generations/tasks')) ||
-    (activeModel.apiModel && activeModel.apiModel.startsWith('doubao-seedance'));
+  const apiModel = activeModel.apiModel || activeModel.id;
+  const endpoint = activeModel.endpoint || '';
+  const usesVideosApi =
+    mode === 'async' || endpoint.includes('/v1/videos');
 
-  if (isDoubaoSeedance) {
+  const isDoubaoChatApi =
+    mode === 'doubao' ||
+    endpoint.includes('/api/v3/contents/generations/tasks') ||
+    (apiModel.startsWith('doubao-seedance') &&
+      endpoint.includes('/chat/completions'));
+
+  if (isDoubaoChatApi) {
     return callDoubaoSeedanceApi(options, activeModel, apiKey, apiBase);
   }
 
-  if (mode === 'async') {
+  if (usesVideosApi) {
     return callSoraApi(options, activeModel, apiKey, apiBase);
   } else {
     return callVeoApi(options, activeModel, apiKey, apiBase);

@@ -1,4 +1,4 @@
-import { ChatModelDefinition, ChatOptions, ChatModelParams } from '../../types/model';
+import { ChatModelDefinition, ChatOptions, ChatModelParams, DEFAULT_CHAT_MODEL_ID } from '../../types/model';
 import { getApiKeyForModel, getApiBaseUrlForModel, getActiveChatModel } from '../modelRegistry';
 
 export class ApiKeyError extends Error {
@@ -149,7 +149,7 @@ export const callChatApi = async (
 
 export const verifyApiKey = async (apiKey: string, baseUrl?: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const url = baseUrl || 'http://api.gitcc.com';
+    const url = baseUrl || 'https://api.gitcc.com';
     
     const response = await fetch(`${url}/v1/chat/completions`, {
       method: 'POST',
@@ -158,7 +158,7 @@ export const verifyApiKey = async (apiKey: string, baseUrl?: string): Promise<{ 
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-41',
+        model: DEFAULT_CHAT_MODEL_ID,
         messages: [{ role: 'user', content: '仅返回1' }],
         temperature: 0.1,
         max_tokens: 5,

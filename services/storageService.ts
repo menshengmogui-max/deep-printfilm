@@ -1,5 +1,6 @@
 // Author: forsearch | Updated: 2026-04-30
 import { ProjectState, AssetLibraryItem } from '../types';
+import { migrateDeprecatedChatModelId } from '../types/model';
 
 const DB_NAME = 'AiMangaStudioDB';
 const LEGACY_DB_NAME = ['Big', 'Banana', 'DB'].join('');
@@ -111,6 +112,18 @@ export const loadProjectFromDB = async (id: string): Promise<ProjectState> => {
         // 舊專案可能沒有 renderLogs，需要補齊以免後續渲染日誌寫入失敗。
         if (!project.renderLogs) {
           project.renderLogs = [];
+        }
+        const migratedModel = migrateDeprecatedChatModelId(project.shotGenerationModel);
+        if (project.shotGenerationModel !== migratedModel) {
+          project.shotGenerationModel = migratedModel;
+        }
+        if (project.scriptData?.shotGenerationModel) {
+          const migratedScriptModel = migrateDeprecatedChatModelId(
+            project.scriptData.shotGenerationModel
+          );
+          if (project.scriptData.shotGenerationModel !== migratedScriptModel) {
+            project.scriptData.shotGenerationModel = migratedScriptModel;
+          }
         }
         resolve(project);
       }
@@ -228,7 +241,7 @@ export const createNewProjectState = (): ProjectState => {
     targetDuration: '60s',
     language: '中文',
     visualStyle: 'live-action',
-    shotGenerationModel: 'gpt-5.1',
+    shotGenerationModel: 'gpt-5.2',
     rawScript: `标题：示例剧本
 
 场景 1

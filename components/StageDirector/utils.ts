@@ -108,7 +108,7 @@ export const buildVideoPrompt = (
 ): string => {
   const isChinese = language === '中文' || language === 'Chinese';
   
-  if (videoModel === 'sora-2') {
+  if (videoModel === 'sora-2' || videoModel.startsWith('doubao-seedance')) {
     const template = isChinese 
       ? VIDEO_PROMPT_TEMPLATES.sora2.chinese 
       : VIDEO_PROMPT_TEMPLATES.sora2.english;

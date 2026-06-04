@@ -81,12 +81,12 @@ const GlobalSettings: React.FC<GlobalSettingsProps> = ({ onRefresh }) => {
               推荐使用 GitCC API
             </h3>
             <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
-              支持 GPT-5.1、GPT-5.2、Claude Sonnet 4.5、Gemini-3、Veo 3.1、Sora-2 等多种模型。
+              文本内置 GPT-5.2、GPT-5.4（可添加自定义）；图像内置 Qwen Image 2.0；视频默认豆包 Seedance 2.0 Fast，另含 Sora-2（可添加自定义）。
               稳定快速，价格优惠。本开源项目由 GitCC API 提供支持。
             </p>
             <div className="flex items-center gap-3">
               <a 
-                href="http://api.gitcc.com" 
+                href="https://api.gitcc.com" 
                 target="_blank" 
                 rel="noreferrer"
                 className="px-4 py-2 bg-cyan-300 text-slate-950 text-xs font-bold rounded-xl hover:bg-cyan-200 transition-colors inline-flex items-center gap-1.5"
