@@ -13,9 +13,12 @@
 
 普通电脑安装文件支持windows
 
-Windows : 安装文件  [https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip]
+Windows : 安装文件   
 
-https://github.com/yuanzhongqiao/deep-printfilm/archive/refs/tags/PrintFilmPro-V-0.8.03.zip
+通过网盘分享的文件：AI 漫剧工场 Setup 0.2.0.exe
+链接: https://pan.baidu.com/s/1ZehWgPNtfKFndYgH8PVhHQ 提取码: 2cae 
+--来自百度网盘超级会员v4的分享
+
 
 ## 界面展示
 
