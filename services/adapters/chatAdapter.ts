@@ -1,5 +1,12 @@
 import { ChatModelDefinition, ChatOptions, ChatModelParams, DEFAULT_CHAT_MODEL_ID } from '../../types/model';
-import { getApiKeyForModel, getApiBaseUrlForModel, getActiveChatModel } from '../modelRegistry';
+import { getApiKeyForModel, getActiveChatModel } from '../modelRegistry';
+import {
+  buildApiUrl,
+  getApiProxyHeadersForModel,
+  getApiRequestBaseUrlForModel,
+  getProxyHeadersForBaseUrl,
+  normalizeApiBaseUrl,
+} from '../apiProxyService';
 
 export class ApiKeyError extends Error {
   constructor(message: string) {
@@ -55,7 +62,8 @@ export const callChatApi = async (
     throw new ApiKeyError('API Key 缺失，请在设置中配置 API Key');
   }
   
-  const apiBase = getApiBaseUrlForModel(activeModel.id);
+  const apiBase = getApiRequestBaseUrlForModel(activeModel.id);
+  const proxyHeaders = getApiProxyHeadersForModel(activeModel.id);
   const endpoint = activeModel.endpoint || '/v1/chat/completions';
   const apiModel = activeModel.apiModel || activeModel.id;
   
@@ -101,11 +109,12 @@ export const callChatApi = async (
   
   try {
     const response = await retryOperation(async () => {
-      const res = await fetch(`${apiBase}${endpoint}`, {
+      const res = await fetch(buildApiUrl(apiBase, endpoint), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
+          ...proxyHeaders,
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal,
@@ -115,7 +124,7 @@ export const callChatApi = async (
         let errorMessage = `HTTP 错误: ${res.status}`;
         try {
           const errorData = await res.json();
-          errorMessage = errorData.error?.message || errorMessage;
+          errorMessage = errorData.error?.message || errorData.message || errorMessage;
         } catch (e) {
           const errorText = await res.text();
           if (errorText) errorMessage = errorText;
@@ -147,18 +156,25 @@ export const callChatApi = async (
   }
 };
 
-export const verifyApiKey = async (apiKey: string, baseUrl?: string): Promise<{ success: boolean; message: string }> => {
+export const verifyApiKey = async (
+  apiKey: string,
+  baseUrl?: string,
+  model: string = DEFAULT_CHAT_MODEL_ID,
+  endpoint: string = '/v1/chat/completions'
+): Promise<{ success: boolean; message: string }> => {
   try {
-    const url = baseUrl || 'https://api.gitcc.com';
-    
-    const response = await fetch(`${url}/v1/chat/completions`, {
+    const targetBaseUrl = normalizeApiBaseUrl(baseUrl || 'https://api.gitcc.com');
+    const proxyHeaders = getProxyHeadersForBaseUrl(targetBaseUrl);
+    const apiBase = Object.keys(proxyHeaders).length ? '/api-proxy' : targetBaseUrl;
+    const response = await fetch(buildApiUrl(apiBase, endpoint || '/v1/chat/completions'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
+        ...proxyHeaders,
       },
       body: JSON.stringify({
-        model: DEFAULT_CHAT_MODEL_ID,
+        model,
         messages: [{ role: 'user', content: '仅返回1' }],
         temperature: 0.1,
         max_tokens: 5,
@@ -169,9 +185,10 @@ export const verifyApiKey = async (apiKey: string, baseUrl?: string): Promise<{ 
       let errorMessage = `验证失败: ${response.status}`;
       try {
         const errorData = await response.json();
-        errorMessage = errorData.error?.message || errorMessage;
+        errorMessage = errorData.error?.message || errorData.message || errorMessage;
       } catch (e) {
-        // ignore
+        const errorText = await response.text();
+        if (errorText) errorMessage = errorText;
       }
       return { success: false, message: errorMessage };
     }
